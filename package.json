@@ -10,6 +10,9 @@
     "author": "",
     "license": "ISC",
     "dependencies": {
-        "express": "^4.16.4"
+        "express": "^4.16.4",
+        "install": "^0.12.2",
+        "npm": "^6.5.0",
+        "passport-oauth2": "^1.4.0"
     }
 }
