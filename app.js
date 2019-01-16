@@ -9,35 +9,39 @@ passport.use(
         {
             authorizationURL: 'https://oauth.web.cern.ch/OAuth/Authorize',
             tokenURL: 'https://oauth.web.cern.ch/OAuth/Token',
-            clientID: 'cms-runregistry',
-            clientSecret: 'h00FZSTyBjlalYKp7GqdBZQP2heMeaqLnpSNiTNXvcc1',
-            callbackURL: 'https://cmsrunregistry.web.cern.ch/callback'
+            clientID: 'cmsdqmrunregistry',
+            clientSecret: 'fOR1Xy8gmrPZ0kxtTt05eIQbrwaUyPIZc0VXYh5cuWY1',
+            callbackURL: 'https://cmsrunregistry.web.cern/'
         },
         function(accessToken, refreshToken, profile, cb) {
             console.log(accessToken);
             console.log(refreshToken);
             console.log(profile);
-
-            cb();
+            cb('');
         }
     )
 );
 
-app.get('/', (req, res) => {
-    console.log('get /');
-    res.send('SSO Hello world');
-});
+// app.get('/', (req, res) => {
+//     console.log('get /');
+//     res.send('SSO Hello world');
+// });
 app.get(
-    '/callback',
+    '/',
     passport.authenticate('oauth2', {
         failureRedirect: '/login'
     }),
     function(req, res) {
         console.log('success');
-        res.redirect('/protected');
+        res.redirect('/something');
     }
 );
+app.get('/something', (req, res) => {
+    res.send('made it')
+});
 
-app.get('/protected', (req, res) =>  res.send('made it'));
-
+app.post('/callback', (req, res) => {
+    console.log(req);
+    console.log(res);
+});
 app.listen(port, () => console.log('SSO Hello world started'));
