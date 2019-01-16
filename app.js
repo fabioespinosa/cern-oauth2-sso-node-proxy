@@ -35,9 +35,10 @@ app.get(
         res.redirect('cms-');
     }
 );
+
 app.get('*', passport.authenticate('oauth2'), (req, res) => {
     proxy.web(req, res, {
-        target: 'http://cms-rr-prod.cern.ch'
+        target: 'http://cms-rr-prod.cern.ch:7001'
     });
 });
 
