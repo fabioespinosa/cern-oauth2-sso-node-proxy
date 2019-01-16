@@ -38,6 +38,6 @@ app.get(
     }
 );
 
-app.get('/protected', res.send('made it'));
+app.get('/protected', (req, res) =>  res.send('made it'));
 
 app.listen(port, () => console.log('SSO Hello world started'));
