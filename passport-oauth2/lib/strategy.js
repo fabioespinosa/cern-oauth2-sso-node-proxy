@@ -273,7 +273,7 @@ OAuth2Strategy.prototype.authenticate = function(req, options) {
  */
 OAuth2Strategy.prototype.userProfile = function (accessToken, done) {
   console.log(accessToken);
-  this._oauth2.get('http://oauth.web.cern.ch/OAuth/Authorize', accessToken, function (err, body, res) {
+  this._oauth2.get('https://oauthresource.web.cern.ch/api/Me', accessToken, function (err, body, res) {
     if (err) { return done(new InternalOAuthError('failed to fetch user profile', err)); }
 
     try {
