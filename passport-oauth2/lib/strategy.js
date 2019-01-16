@@ -274,10 +274,11 @@ OAuth2Strategy.prototype.authenticate = function(req, options) {
  * @api protected
  */
 OAuth2Strategy.prototype.userProfile = function (accessToken, done) {
-  console.log(accessToken);
+  console.log('access token', accessToken);
   this._oauth2.get('https://oauthresource.web.cern.ch/api/Me', accessToken, function (err, body, res) {
     if (err) { 
-      console.log('error in oauth module');
+      console.log('ERROR IN fetching /api/Me');
+      console.log(err, err.message)
       return done(new InternalOAuthError('failed to fetch user profile', err)); 
     }
 
@@ -305,6 +306,7 @@ OAuth2Strategy.prototype.userProfile = function (accessToken, done) {
 
       done(null, profile);
     } catch (e) {
+      console.log('error in try', e)
       done(e);
     }
   });
@@ -361,6 +363,7 @@ OAuth2Strategy.prototype.tokenParams = function(options) {
 OAuth2Strategy.prototype.parseErrorResponse = function(body, status) {
   var json = JSON.parse(body);
   if (json.error) {
+    console.log(json);
     return new TokenError(json.error_description, json.error, json.error_uri);
   }
   return null;
