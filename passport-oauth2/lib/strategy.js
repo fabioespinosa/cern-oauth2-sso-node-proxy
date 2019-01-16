@@ -359,7 +359,7 @@ OAuth2Strategy.prototype.authenticate = function(req, options) {
  * @api protected
  */
 OAuth2Strategy.prototype.userProfile = function(accessToken, done) {
-    console.log(accessToken);
+    console.log('access token: ', accessToken);
     axios
         .get('https://oauthresource.web.cern.ch/api/Me', {
             Headers: { Authorization: `Bearer ${accessToken}` }
@@ -370,6 +370,8 @@ OAuth2Strategy.prototype.userProfile = function(accessToken, done) {
         })
         .catch(err => {
             console.log('error in request');
+            console.log(err.data);
+            console.log(err.message);
             done(err);
         });
 
