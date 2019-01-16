@@ -37,16 +37,6 @@ app.get(
         res.redirect('/');
     }
 );
-app.get('/callback', (req, res) => {
-    console.log(req);
-    console.log(res);
-});
 
-
-
-app.post('/callback', (req, res) => {
-    console.log(req);
-    console.log(res);
-});
 
 app.listen(port, () => console.log('SSO Hello world started'));
