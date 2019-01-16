@@ -37,11 +37,15 @@ app.get(
         });
     }
 );
+app.get('/error', (req, res) => {
+    res.send('Error authenticating user');
+});
 
-// app.get('*', passport.authenticate('oauth2'), (req, res) => {
-//     proxy.web(req, res, {
-//         target: 'http://cms-rr-prod.cern.ch:7001'
-//     });
-// });
+app.get('*', passport.authenticate('oauth2'), (req, res) => {
+    console.log('hola');
+    proxy.web(req, res, {
+        target: 'http://cms-rr-prod.cern.ch:7001'
+    });
+});
 
 app.listen(port, () => console.log('SSO Hello world started'));
