@@ -32,14 +32,16 @@ app.get(
     }),
     function(req, res, next) {
         console.log(req.user.displayName);
-        next();
+        proxy.web(req, res, {
+            target: 'http://cms-rr-prod.cern.ch:7001'
+        });
     }
 );
 
-app.get('*', passport.authenticate('oauth2'), (req, res) => {
-    proxy.web(req, res, {
-        target: 'http://cms-rr-prod.cern.ch:7001'
-    });
-});
+// app.get('*', passport.authenticate('oauth2'), (req, res) => {
+//     proxy.web(req, res, {
+//         target: 'http://cms-rr-prod.cern.ch:7001'
+//     });
+// });
 
 app.listen(port, () => console.log('SSO Hello world started'));
