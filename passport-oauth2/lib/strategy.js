@@ -359,6 +359,7 @@ OAuth2Strategy.prototype.authenticate = function(req, options) {
  * @api protected
  */
 OAuth2Strategy.prototype.userProfile = function(accessToken, done) {
+    console.log('access token: ', accessToken);
     axios
         .get('https://oauthresource.web.cern.ch/api/Me', {
             headers: { Authorization: `Bearer ${accessToken}` }
@@ -386,6 +387,7 @@ OAuth2Strategy.prototype.userProfile = function(accessToken, done) {
             profile.groups = json['http://schemas.xmlsoap.org/claims/Group'];
             profile.email =
                 json['http://schemas.xmlsoap.org/claims/EmailAddress'];
+            console.log(profile);
             done(null, profile);
         })
         .catch(err => {
