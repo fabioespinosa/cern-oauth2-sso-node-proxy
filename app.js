@@ -30,8 +30,9 @@ app.get(
         failureRedirect: '/error',
         session: false
     }),
-    function(req, res) {
+    function(req, res, next) {
         console.log(req.user.displayName);
+        next();
     }
 );
 
