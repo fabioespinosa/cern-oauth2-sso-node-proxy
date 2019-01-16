@@ -384,8 +384,7 @@ OAuth2Strategy.prototype.userProfile = function(accessToken, done) {
             profile.email =
                 json['http://schemas.xmlsoap.org/claims/EmailAddress'];
 
-            profile._raw = body;
-            profile._json = json;
+            profile._raw = response.data;
             console.log(profile);
             done(null, profile);
         })
