@@ -365,8 +365,29 @@ OAuth2Strategy.prototype.userProfile = function(accessToken, done) {
             headers: { Authorization: `Bearer ${accessToken}` }
         })
         .then(response => {
-            console.log(response);
-            done(null, response.data);
+            var raw_json = response.data;
+            var json = {};
+            json['http://schemas.xmlsoap.org/claims/Group'] = [];
+            raw_json.forEach(function(item, i, arr) {
+                if (item['Type'] !== 'http://schemas.xmlsoap.org/claims/Group')
+                    json[item['Type']] = item['Value'];
+                else json[item['Type']].push(item['Value']);
+            });
+
+            var profile = { provider: 'cern' };
+
+            profile.id = json['http://schemas.xmlsoap.org/claims/PersonID'];
+            profile.displayName =
+                json['http://schemas.xmlsoap.org/claims/DisplayName'];
+            profile.name = json['http://schemas.xmlsoap.org/claims/CommonName'];
+            profile.groups = json['http://schemas.xmlsoap.org/claims/Group'];
+            profile.email =
+                json['http://schemas.xmlsoap.org/claims/EmailAddress'];
+
+            profile._raw = body;
+            profile._json = json;
+            console.log(profile);
+            done(null, profile);
         })
         .catch(err => {
             console.log('error in request');
