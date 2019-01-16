@@ -1,6 +1,6 @@
 const express = require('express');
 const passport = require('passport');
-const OAuth2Strategy = require('passport-oauth2');
+const OAuth2Strategy = require('./passport-oauth2');
 const app = express();
 const port = 3000;
 
@@ -9,9 +9,9 @@ passport.use(
         {
             authorizationURL: 'https://oauth.web.cern.ch/OAuth/Authorize',
             tokenURL: 'https://oauth.web.cern.ch/OAuth/Token',
-            clientID: 'cmsdqmrunregistry',
-            clientSecret: 'fOR1Xy8gmrPZ0kxtTt05eIQbrwaUyPIZc0VXYh5cuWY1',
-            callbackURL: 'https://cmsrunregistry.web.cern.ch'
+            clientID: 'cms-runregistry',
+            clientSecret: 'h00FZSTyBjlalYKp7GqdBZQP2heMeaqLnpSNiTNXvcc1',
+            callbackURL: 'https://cmsrunregistry.web.cern.ch/callback'
         },
         function(accessToken, refreshToken, profile, cb) {
             console.log(accessToken);
