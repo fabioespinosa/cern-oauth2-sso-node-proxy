@@ -273,36 +273,36 @@ OAuth2Strategy.prototype.authenticate = function(req, options) {
  */
 OAuth2Strategy.prototype.userProfile = function (accessToken, done) {
   console.log(accessToken);
-  this._oauth2.get('https://oauthresource.web.cern.ch/api/Me', accessToken, function (err, body, res) {
-    if (err) { return done(new InternalOAuthError('failed to fetch user profile', err)); }
+  // this._oauth2.get('https://oauthresource.web.cern.ch/api/Me', accessToken, function (err, body, res) {
+  //   if (err) { return done(new InternalOAuthError('failed to fetch user profile', err)); }
 
-    try {
-      var raw_json = JSON.parse(body);
-      var json = {};
-      json['http://schemas.xmlsoap.org/claims/Group'] = [];
-      raw_json.forEach(function (item, i, arr) {
-        if (item['Type'] !== 'http://schemas.xmlsoap.org/claims/Group')
-          json[item['Type']] = item['Value'];
-        else
-          json[item['Type']].push(item['Value']);
-      });
+  //   try {
+  //     var raw_json = JSON.parse(body);
+  //     var json = {};
+  //     json['http://schemas.xmlsoap.org/claims/Group'] = [];
+  //     raw_json.forEach(function (item, i, arr) {
+  //       if (item['Type'] !== 'http://schemas.xmlsoap.org/claims/Group')
+  //         json[item['Type']] = item['Value'];
+  //       else
+  //         json[item['Type']].push(item['Value']);
+  //     });
 
-      var profile = { provider: 'cern' };
+  //     var profile = { provider: 'cern' };
 
-      profile.id = json['http://schemas.xmlsoap.org/claims/PersonID'];
-      profile.displayName = json['http://schemas.xmlsoap.org/claims/DisplayName'];
-      profile.name = json['http://schemas.xmlsoap.org/claims/CommonName'];
-      profile.groups = json['http://schemas.xmlsoap.org/claims/Group'];
-      profile.email = json['http://schemas.xmlsoap.org/claims/EmailAddress'];
+  //     profile.id = json['http://schemas.xmlsoap.org/claims/PersonID'];
+  //     profile.displayName = json['http://schemas.xmlsoap.org/claims/DisplayName'];
+  //     profile.name = json['http://schemas.xmlsoap.org/claims/CommonName'];
+  //     profile.groups = json['http://schemas.xmlsoap.org/claims/Group'];
+  //     profile.email = json['http://schemas.xmlsoap.org/claims/EmailAddress'];
 
-      profile._raw = body;
-      profile._json = json;
+  //     profile._raw = body;
+  //     profile._json = json;
 
-      done(null, profile);
-    } catch (e) {
-      done(e);
-    }
-  });
+  //     done(null, profile);
+  //   } catch (e) {
+  //     done(e);
+  //   }
+  // });
 };
 
 /**
