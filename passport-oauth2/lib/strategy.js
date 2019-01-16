@@ -121,6 +121,7 @@ util.inherits(OAuth2Strategy, passport.Strategy);
  * @api protected
  */
 OAuth2Strategy.prototype.authenticate = function(req, options) {
+  console.log('start auth');
   options = options || {};
   var self = this;
 
@@ -149,6 +150,7 @@ OAuth2Strategy.prototype.authenticate = function(req, options) {
   }
 
   if (req.query && req.query.code) {
+    console.log('code',req.query.code);
     function loaded(err, ok, state) {
       if (err) { return self.error(err); }
       if (!ok) {
@@ -403,6 +405,7 @@ OAuth2Strategy.prototype._loadUserProfile = function(accessToken, done) {
  * @api private
  */
 OAuth2Strategy.prototype._createOAuthError = function(message, err) {
+  console.log('err')
   var e;
   if (err.statusCode && err.data) {
     try {
