@@ -33,7 +33,8 @@ app.use(passport.initialize());
 app.get(
     '/callback',
     passport.authenticate('oauth2', {
-        failureRedirect: '/error'
+        failureRedirect: '/error',
+        session: false
     }),
     function(req, res) {
         console.log('success');
