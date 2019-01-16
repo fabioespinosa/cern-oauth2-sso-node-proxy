@@ -38,8 +38,8 @@ app.get(
         res.redirect('/something');
     }
 );
-app.get('/something', (req, res) => {
-    res.send('made it')
+app.get('/something', passport.authenticate('oauth2'), (req, res) => {
+    res.send('made it');
 });
 
 app.post('/callback', (req, res) => {

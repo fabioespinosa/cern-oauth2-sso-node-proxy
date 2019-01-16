@@ -1,15 +1,15 @@
 // Load modules.
-var passport = require('passport-strategy')
-  , url = require('url')
-  , util = require('util')
-  , utils = require('./utils')
-  , OAuth2 = require('oauth').OAuth2
-  , NullStateStore = require('./state/null')
-  , SessionStateStore = require('./state/session')
-  , AuthorizationError = require('./errors/authorizationerror')
-  , TokenError = require('./errors/tokenerror')
-  , InternalOAuthError = require('./errors/internaloautherror');
-
+var axios = require('axios');
+var passport = require('passport-strategy'),
+    url = require('url'),
+    util = require('util'),
+    utils = require('./utils'),
+    OAuth2 = require('oauth').OAuth2,
+    NullStateStore = require('./state/null'),
+    SessionStateStore = require('./state/session'),
+    AuthorizationError = require('./errors/authorizationerror'),
+    TokenError = require('./errors/tokenerror'),
+    InternalOAuthError = require('./errors/internaloautherror');
 
 /**
  * Creates an instance of `OAuth2Strategy`.
@@ -70,49 +70,67 @@ var passport = require('passport-strategy')
  * @api public
  */
 function OAuth2Strategy(options, verify) {
-  if (typeof options == 'function') {
-    verify = options;
-    options = undefined;
-  }
-  options = options || {};
-
-  if (!verify) { throw new TypeError('OAuth2Strategy requires a verify callback'); }
-  if (!options.authorizationURL) { throw new TypeError('OAuth2Strategy requires a authorizationURL option'); }
-  if (!options.tokenURL) { throw new TypeError('OAuth2Strategy requires a tokenURL option'); }
-  if (!options.clientID) { throw new TypeError('OAuth2Strategy requires a clientID option'); }
-
-  passport.Strategy.call(this);
-  this.name = 'oauth2';
-  this._verify = verify;
-
-  // NOTE: The _oauth2 property is considered "protected".  Subclasses are
-  //       allowed to use it when making protected resource requests to retrieve
-  //       the user profile.
-  this._oauth2 = new OAuth2(options.clientID,  options.clientSecret,
-      '', options.authorizationURL, options.tokenURL, options.customHeaders);
-
-  this._callbackURL = options.callbackURL;
-  this._scope = options.scope;
-  this._scopeSeparator = options.scopeSeparator || ' ';
-  this._key = options.sessionKey || ('oauth2:' + url.parse(options.authorizationURL).hostname);
-
-  if (options.store) {
-    this._stateStore = options.store;
-  } else {
-    if (options.state) {
-      this._stateStore = new SessionStateStore({ key: this._key });
-    } else {
-      this._stateStore = new NullStateStore();
+    if (typeof options == 'function') {
+        verify = options;
+        options = undefined;
     }
-  }
-  this._trustProxy = options.proxy;
-  this._passReqToCallback = options.passReqToCallback;
-  this._skipUserProfile = (options.skipUserProfile === undefined) ? false : options.skipUserProfile;
+    options = options || {};
+
+    if (!verify) {
+        throw new TypeError('OAuth2Strategy requires a verify callback');
+    }
+    if (!options.authorizationURL) {
+        throw new TypeError(
+            'OAuth2Strategy requires a authorizationURL option'
+        );
+    }
+    if (!options.tokenURL) {
+        throw new TypeError('OAuth2Strategy requires a tokenURL option');
+    }
+    if (!options.clientID) {
+        throw new TypeError('OAuth2Strategy requires a clientID option');
+    }
+
+    passport.Strategy.call(this);
+    this.name = 'oauth2';
+    this._verify = verify;
+
+    // NOTE: The _oauth2 property is considered "protected".  Subclasses are
+    //       allowed to use it when making protected resource requests to retrieve
+    //       the user profile.
+    this._oauth2 = new OAuth2(
+        options.clientID,
+        options.clientSecret,
+        '',
+        options.authorizationURL,
+        options.tokenURL,
+        options.customHeaders
+    );
+
+    this._callbackURL = options.callbackURL;
+    this._scope = options.scope;
+    this._scopeSeparator = options.scopeSeparator || ' ';
+    this._key =
+        options.sessionKey ||
+        'oauth2:' + url.parse(options.authorizationURL).hostname;
+
+    if (options.store) {
+        this._stateStore = options.store;
+    } else {
+        if (options.state) {
+            this._stateStore = new SessionStateStore({ key: this._key });
+        } else {
+            this._stateStore = new NullStateStore();
+        }
+    }
+    this._trustProxy = options.proxy;
+    this._passReqToCallback = options.passReqToCallback;
+    this._skipUserProfile =
+        options.skipUserProfile === undefined ? false : options.skipUserProfile;
 }
 
 // Inherit from `passport.Strategy`.
 util.inherits(OAuth2Strategy, passport.Strategy);
-
 
 /**
  * Authenticate request by delegating to a service provider using OAuth 2.0.
@@ -121,144 +139,211 @@ util.inherits(OAuth2Strategy, passport.Strategy);
  * @api protected
  */
 OAuth2Strategy.prototype.authenticate = function(req, options) {
-  console.log('start auth');
-  options = options || {};
-  var self = this;
+    console.log('start auth');
+    options = options || {};
+    var self = this;
 
-  if (req.query && req.query.error) {
-    if (req.query.error == 'access_denied') {
-      return this.fail({ message: req.query.error_description });
+    if (req.query && req.query.error) {
+        if (req.query.error == 'access_denied') {
+            return this.fail({ message: req.query.error_description });
+        } else {
+            return this.error(
+                new AuthorizationError(
+                    req.query.error_description,
+                    req.query.error,
+                    req.query.error_uri
+                )
+            );
+        }
+    }
+
+    var callbackURL = options.callbackURL || this._callbackURL;
+    if (callbackURL) {
+        var parsed = url.parse(callbackURL);
+        if (!parsed.protocol) {
+            // The callback URL is relative, resolve a fully qualified URL from the
+            // URL of the originating request.
+            callbackURL = url.resolve(
+                utils.originalURL(req, { proxy: this._trustProxy }),
+                callbackURL
+            );
+        }
+    }
+
+    var meta = {
+        authorizationURL: this._oauth2._authorizeUrl,
+        tokenURL: this._oauth2._accessTokenUrl,
+        clientID: this._oauth2._clientId
+    };
+
+    if (req.query && req.query.code) {
+        console.log('code', req.query.code);
+        function loaded(err, ok, state) {
+            if (err) {
+                return self.error(err);
+            }
+            if (!ok) {
+                return self.fail(state, 403);
+            }
+
+            var code = req.query.code;
+
+            var params = self.tokenParams(options);
+            params.grant_type = 'authorization_code';
+            if (callbackURL) {
+                params.redirect_uri = callbackURL;
+            }
+
+            self._oauth2.getOAuthAccessToken(code, params, function(
+                err,
+                accessToken,
+                refreshToken,
+                params
+            ) {
+                if (err) {
+                    return self.error(
+                        self._createOAuthError(
+                            'Failed to obtain access token',
+                            err
+                        )
+                    );
+                }
+
+                self._loadUserProfile(accessToken, function(err, profile) {
+                    if (err) {
+                        return self.error(err);
+                    }
+
+                    function verified(err, user, info) {
+                        if (err) {
+                            return self.error(err);
+                        }
+                        if (!user) {
+                            return self.fail(info);
+                        }
+
+                        info = info || {};
+                        if (state) {
+                            info.state = state;
+                        }
+                        self.success(user, info);
+                    }
+
+                    try {
+                        if (self._passReqToCallback) {
+                            var arity = self._verify.length;
+                            if (arity == 6) {
+                                self._verify(
+                                    req,
+                                    accessToken,
+                                    refreshToken,
+                                    params,
+                                    profile,
+                                    verified
+                                );
+                            } else {
+                                // arity == 5
+                                self._verify(
+                                    req,
+                                    accessToken,
+                                    refreshToken,
+                                    profile,
+                                    verified
+                                );
+                            }
+                        } else {
+                            var arity = self._verify.length;
+                            if (arity == 5) {
+                                self._verify(
+                                    accessToken,
+                                    refreshToken,
+                                    params,
+                                    profile,
+                                    verified
+                                );
+                            } else {
+                                // arity == 4
+                                self._verify(
+                                    accessToken,
+                                    refreshToken,
+                                    profile,
+                                    verified
+                                );
+                            }
+                        }
+                    } catch (ex) {
+                        return self.error(ex);
+                    }
+                });
+            });
+        }
+
+        var state = req.query.state;
+        try {
+            var arity = this._stateStore.verify.length;
+            if (arity == 4) {
+                this._stateStore.verify(req, state, meta, loaded);
+            } else {
+                // arity == 3
+                this._stateStore.verify(req, state, loaded);
+            }
+        } catch (ex) {
+            return this.error(ex);
+        }
     } else {
-      return this.error(new AuthorizationError(req.query.error_description, req.query.error, req.query.error_uri));
-    }
-  }
+        var params = this.authorizationParams(options);
+        params.response_type = 'code';
+        if (callbackURL) {
+            params.redirect_uri = callbackURL;
+        }
+        var scope = options.scope || this._scope;
+        if (scope) {
+            if (Array.isArray(scope)) {
+                scope = scope.join(this._scopeSeparator);
+            }
+            params.scope = scope;
+        }
 
-  var callbackURL = options.callbackURL || this._callbackURL;
-  if (callbackURL) {
-    var parsed = url.parse(callbackURL);
-    if (!parsed.protocol) {
-      // The callback URL is relative, resolve a fully qualified URL from the
-      // URL of the originating request.
-      callbackURL = url.resolve(utils.originalURL(req, { proxy: this._trustProxy }), callbackURL);
-    }
-  }
-  
-  var meta = {
-    authorizationURL: this._oauth2._authorizeUrl,
-    tokenURL: this._oauth2._accessTokenUrl,
-    clientID: this._oauth2._clientId
-  }
+        var state = options.state;
+        if (state) {
+            params.state = state;
 
-  if (req.query && req.query.code) {
-    console.log('code',req.query.code);
-    function loaded(err, ok, state) {
-      if (err) { return self.error(err); }
-      if (!ok) {
-        return self.fail(state, 403);
-      }
-  
-      var code = req.query.code;
+            var parsed = url.parse(this._oauth2._authorizeUrl, true);
+            utils.merge(parsed.query, params);
+            parsed.query['client_id'] = this._oauth2._clientId;
+            delete parsed.search;
+            var location = url.format(parsed);
+            this.redirect(location);
+        } else {
+            function stored(err, state) {
+                if (err) {
+                    return self.error(err);
+                }
 
-      var params = self.tokenParams(options);
-      params.grant_type = 'authorization_code';
-      if (callbackURL) { params.redirect_uri = callbackURL; }
-
-      self._oauth2.getOAuthAccessToken(code, params,
-        function(err, accessToken, refreshToken, params) {
-          if (err) { return self.error(self._createOAuthError('Failed to obtain access token', err)); }
-
-          self._loadUserProfile(accessToken, function(err, profile) {
-            if (err) { return self.error(err); }
-
-            function verified(err, user, info) {
-              if (err) { return self.error(err); }
-              if (!user) { return self.fail(info); }
-              
-              info = info || {};
-              if (state) { info.state = state; }
-              self.success(user, info);
+                if (state) {
+                    params.state = state;
+                }
+                var parsed = url.parse(self._oauth2._authorizeUrl, true);
+                utils.merge(parsed.query, params);
+                parsed.query['client_id'] = self._oauth2._clientId;
+                delete parsed.search;
+                var location = url.format(parsed);
+                self.redirect(location);
             }
 
             try {
-              if (self._passReqToCallback) {
-                var arity = self._verify.length;
-                if (arity == 6) {
-                  self._verify(req, accessToken, refreshToken, params, profile, verified);
-                } else { // arity == 5
-                  self._verify(req, accessToken, refreshToken, profile, verified);
+                var arity = this._stateStore.store.length;
+                if (arity == 3) {
+                    this._stateStore.store(req, meta, stored);
+                } else {
+                    // arity == 2
+                    this._stateStore.store(req, stored);
                 }
-              } else {
-                var arity = self._verify.length;
-                if (arity == 5) {
-                  self._verify(accessToken, refreshToken, params, profile, verified);
-                } else { // arity == 4
-                  self._verify(accessToken, refreshToken, profile, verified);
-                }
-              }
             } catch (ex) {
-              return self.error(ex);
+                return this.error(ex);
             }
-          });
         }
-      );
     }
-    
-    var state = req.query.state;
-    try {
-      var arity = this._stateStore.verify.length;
-      if (arity == 4) {
-        this._stateStore.verify(req, state, meta, loaded);
-      } else { // arity == 3
-        this._stateStore.verify(req, state, loaded);
-      }
-    } catch (ex) {
-      return this.error(ex);
-    }
-  } else {
-    var params = this.authorizationParams(options);
-    params.response_type = 'code';
-    if (callbackURL) { params.redirect_uri = callbackURL; }
-    var scope = options.scope || this._scope;
-    if (scope) {
-      if (Array.isArray(scope)) { scope = scope.join(this._scopeSeparator); }
-      params.scope = scope;
-    }
-
-    var state = options.state;
-    if (state) {
-      params.state = state;
-      
-      var parsed = url.parse(this._oauth2._authorizeUrl, true);
-      utils.merge(parsed.query, params);
-      parsed.query['client_id'] = this._oauth2._clientId;
-      delete parsed.search;
-      var location = url.format(parsed);
-      this.redirect(location);
-    } else {
-      function stored(err, state) {
-        if (err) { return self.error(err); }
-
-        if (state) { params.state = state; }
-        var parsed = url.parse(self._oauth2._authorizeUrl, true);
-        utils.merge(parsed.query, params);
-        parsed.query['client_id'] = self._oauth2._clientId;
-        delete parsed.search;
-        var location = url.format(parsed);
-        self.redirect(location);
-      }
-      
-      try {
-        var arity = this._stateStore.store.length;
-        if (arity == 3) {
-          this._stateStore.store(req, meta, stored);
-        } else { // arity == 2
-          this._stateStore.store(req, stored);
-        }
-      } catch (ex) {
-        return this.error(ex);
-      }
-    }
-  }
 };
 
 /**
@@ -273,43 +358,68 @@ OAuth2Strategy.prototype.authenticate = function(req, options) {
  * @param {Function} done
  * @api protected
  */
-OAuth2Strategy.prototype.userProfile = function (accessToken, done) {
-  accessToken = `Bearer ${accessToken}`
-  this._oauth2.get('https://oauthresource.web.cern.ch/api/Me', accessToken, function (err, body, res) {
-    if (err) { 
-      console.log('ERROR IN fetching /api/Me');
-      console.log(err, err.message)
-      return done(new InternalOAuthError('failed to fetch user profile', err)); 
-    }
+OAuth2Strategy.prototype.userProfile = function(accessToken, done) {
+    console.log(accessToken);
+    axios
+        .get('https://oauthresource.web.cern.ch/api/Me', {
+            Headers: { Authorization: `Bearer ${accessToken}` }
+        })
+        .then(response => {
+            console.log(response);
+            done(null, response.data);
+        })
+        .catch(err => {
+            console.log('error in request');
+            done(err);
+        });
 
-    try {
-      var raw_json = JSON.parse(body);
-      var json = {};
-      json['http://schemas.xmlsoap.org/claims/Group'] = [];
-      raw_json.forEach(function (item, i, arr) {
-        if (item['Type'] !== 'http://schemas.xmlsoap.org/claims/Group')
-          json[item['Type']] = item['Value'];
-        else
-          json[item['Type']].push(item['Value']);
-      });
+    // this._oauth2.get(
+    //     'https://oauthresource.web.cern.ch/api/Me',
+    //     accessToken,
+    //     function(err, body, res) {
+    //         if (err) {
+    //             console.log('ERROR IN fetching /api/Me');
+    //             console.log(err, err.message);
+    //             return done(
+    //                 new InternalOAuthError('failed to fetch user profile', err)
+    //             );
+    //         }
 
-      var profile = { provider: 'cern' };
+    //         try {
+    //             var raw_json = JSON.parse(body);
+    //             var json = {};
+    //             json['http://schemas.xmlsoap.org/claims/Group'] = [];
+    //             raw_json.forEach(function(item, i, arr) {
+    //                 if (
+    //                     item['Type'] !==
+    //                     'http://schemas.xmlsoap.org/claims/Group'
+    //                 )
+    //                     json[item['Type']] = item['Value'];
+    //                 else json[item['Type']].push(item['Value']);
+    //             });
 
-      profile.id = json['http://schemas.xmlsoap.org/claims/PersonID'];
-      profile.displayName = json['http://schemas.xmlsoap.org/claims/DisplayName'];
-      profile.name = json['http://schemas.xmlsoap.org/claims/CommonName'];
-      profile.groups = json['http://schemas.xmlsoap.org/claims/Group'];
-      profile.email = json['http://schemas.xmlsoap.org/claims/EmailAddress'];
+    //             var profile = { provider: 'cern' };
 
-      profile._raw = body;
-      profile._json = json;
+    //             profile.id = json['http://schemas.xmlsoap.org/claims/PersonID'];
+    //             profile.displayName =
+    //                 json['http://schemas.xmlsoap.org/claims/DisplayName'];
+    //             profile.name =
+    //                 json['http://schemas.xmlsoap.org/claims/CommonName'];
+    //             profile.groups =
+    //                 json['http://schemas.xmlsoap.org/claims/Group'];
+    //             profile.email =
+    //                 json['http://schemas.xmlsoap.org/claims/EmailAddress'];
 
-      done(null, profile);
-    } catch (e) {
-      console.log('error in try', e)
-      done(e);
-    }
-  });
+    //             profile._raw = body;
+    //             profile._json = json;
+
+    //             done(null, profile);
+    //         } catch (e) {
+    //             console.log('error in try', e);
+    //             done(e);
+    //         }
+    //     }
+    // );
 };
 
 /**
@@ -326,7 +436,7 @@ OAuth2Strategy.prototype.userProfile = function (accessToken, done) {
  * @api protected
  */
 OAuth2Strategy.prototype.authorizationParams = function(options) {
-  return {};
+    return {};
 };
 
 /**
@@ -342,7 +452,7 @@ OAuth2Strategy.prototype.authorizationParams = function(options) {
  * @api protected
  */
 OAuth2Strategy.prototype.tokenParams = function(options) {
-  return {};
+    return {};
 };
 
 /**
@@ -361,12 +471,16 @@ OAuth2Strategy.prototype.tokenParams = function(options) {
  * @api protected
  */
 OAuth2Strategy.prototype.parseErrorResponse = function(body, status) {
-  var json = JSON.parse(body);
-  if (json.error) {
-    console.log(json);
-    return new TokenError(json.error_description, json.error, json.error_uri);
-  }
-  return null;
+    var json = JSON.parse(body);
+    if (json.error) {
+        console.log(json);
+        return new TokenError(
+            json.error_description,
+            json.error,
+            json.error_uri
+        );
+    }
+    return null;
 };
 
 /**
@@ -377,27 +491,39 @@ OAuth2Strategy.prototype.parseErrorResponse = function(body, status) {
  * @api private
  */
 OAuth2Strategy.prototype._loadUserProfile = function(accessToken, done) {
-  var self = this;
+    var self = this;
 
-  function loadIt() {
-    return self.userProfile(accessToken, done);
-  }
-  function skipIt() {
-    return done(null);
-  }
+    function loadIt() {
+        return self.userProfile(accessToken, done);
+    }
+    function skipIt() {
+        return done(null);
+    }
 
-  if (typeof this._skipUserProfile == 'function' && this._skipUserProfile.length > 1) {
-    // async
-    this._skipUserProfile(accessToken, function(err, skip) {
-      if (err) { return done(err); }
-      if (!skip) { return loadIt(); }
-      return skipIt();
-    });
-  } else {
-    var skip = (typeof this._skipUserProfile == 'function') ? this._skipUserProfile() : this._skipUserProfile;
-    if (!skip) { return loadIt(); }
-    return skipIt();
-  }
+    if (
+        typeof this._skipUserProfile == 'function' &&
+        this._skipUserProfile.length > 1
+    ) {
+        // async
+        this._skipUserProfile(accessToken, function(err, skip) {
+            if (err) {
+                return done(err);
+            }
+            if (!skip) {
+                return loadIt();
+            }
+            return skipIt();
+        });
+    } else {
+        var skip =
+            typeof this._skipUserProfile == 'function'
+                ? this._skipUserProfile()
+                : this._skipUserProfile;
+        if (!skip) {
+            return loadIt();
+        }
+        return skipIt();
+    }
 };
 
 /**
@@ -408,17 +534,18 @@ OAuth2Strategy.prototype._loadUserProfile = function(accessToken, done) {
  * @api private
  */
 OAuth2Strategy.prototype._createOAuthError = function(message, err) {
-  console.log('err')
-  var e;
-  if (err.statusCode && err.data) {
-    try {
-      e = this.parseErrorResponse(err.data, err.statusCode);
-    } catch (_) {}
-  }
-  if (!e) { e = new InternalOAuthError(message, err); }
-  return e;
+    console.log('err');
+    var e;
+    if (err.statusCode && err.data) {
+        try {
+            e = this.parseErrorResponse(err.data, err.statusCode);
+        } catch (_) {}
+    }
+    if (!e) {
+        e = new InternalOAuthError(message, err);
+    }
+    return e;
 };
-
 
 // Expose constructor.
 module.exports = OAuth2Strategy;
