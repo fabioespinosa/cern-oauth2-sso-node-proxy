@@ -32,7 +32,6 @@ app.get(
     }),
     function(req, res) {
         console.log(req.user.displayName);
-        res.redirect('cms-');
     }
 );
 
