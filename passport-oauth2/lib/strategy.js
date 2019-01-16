@@ -274,7 +274,7 @@ OAuth2Strategy.prototype.authenticate = function(req, options) {
  * @api protected
  */
 OAuth2Strategy.prototype.userProfile = function (accessToken, done) {
-  console.log('access token', accessToken);
+  accessToken = `Bearer ${accessToken}`
   this._oauth2.get('https://oauthresource.web.cern.ch/api/Me', accessToken, function (err, body, res) {
     if (err) { 
       console.log('ERROR IN fetching /api/Me');
