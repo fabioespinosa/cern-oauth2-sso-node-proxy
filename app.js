@@ -11,13 +11,13 @@ passport.use(
             tokenURL: 'https://oauth.web.cern.ch/OAuth/Token',
             clientID: 'cmsdqmrunregistry',
             clientSecret: 'fOR1Xy8gmrPZ0kxtTt05eIQbrwaUyPIZc0VXYh5cuWY1',
-            callbackURL: 'https://cmsrunregistry.web.cern/'
+            callbackURL: 'https://cmsrunregistry.web.cern.ch/'
         },
         function(accessToken, refreshToken, profile, cb) {
             console.log(accessToken);
             console.log(refreshToken);
             console.log(profile);
-            cb('');
+            cb();
         }
     )
 );
