@@ -18,7 +18,7 @@ passport.use(
             console.log(refreshToken);
             console.log(profile);
 
-            cb('hello', 'hello');
+            cb();
         }
     )
 );
@@ -28,15 +28,16 @@ app.get('/', (req, res) => {
     res.send('SSO Hello world');
 });
 app.get(
-    '/auth',
+    '/callback',
     passport.authenticate('oauth2', {
         failureRedirect: '/login'
     }),
     function(req, res) {
         console.log('success');
-        res.redirect('/');
+        res.redirect('/protected');
     }
 );
 
+app.get('/protected', res.send('made it'));
 
 app.listen(port, () => console.log('SSO Hello world started'));
