@@ -362,7 +362,7 @@ OAuth2Strategy.prototype.userProfile = function(accessToken, done) {
     console.log('access token: ', accessToken);
     axios
         .get('https://oauthresource.web.cern.ch/api/Me', {
-            Headers: { Authorization: `Bearer ${accessToken}` }
+            headers: { Authorization: `Bearer ${accessToken}` }
         })
         .then(response => {
             console.log(response);
