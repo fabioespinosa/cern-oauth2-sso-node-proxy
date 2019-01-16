@@ -11,18 +11,21 @@ passport.use(
             tokenURL: 'https://oauth.web.cern.ch/OAuth/Token',
             clientID: 'cmsdqmrunregistry',
             clientSecret: 'fOR1Xy8gmrPZ0kxtTt05eIQbrwaUyPIZc0VXYh5cuWY1',
-            // callbackURL: 'https://dev-tkdqmdoctor.web.cern.ch/accounts/cern/login/callback/'
+            callbackURL: 'https://cmsrunregistry.web.cern.ch/callback'
         },
         function(accessToken, refreshToken, profile, cb) {
             console.log(accessToken);
             console.log(refreshToken);
             console.log(profile);
-            cb('hello', 'hello')
+            cb('hello', 'hello');
         }
     )
 );
 
-app.get('/', (req, res) => res.send('SSO Hello world'));
+app.get('/', (req, res) => {
+    console.log('get /');
+    res.send('SSO Hello world');
+});
 app.get(
     '/auth',
     passport.authenticate('oauth2', {
@@ -30,7 +33,16 @@ app.get(
     }),
     function(req, res) {
         console.log('success');
-        res.redirect('/')
+        res.redirect('/');
     }
 );
+app.get('/callback', (req, res) => {
+    console.log(req);
+    console.log(res);
+});
+
+app.post('/callback', (req, res) => {
+    console.log(req);
+    console.log(res);
+});
 app.listen(port, () => console.log('SSO Hello world started'));
