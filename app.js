@@ -27,6 +27,9 @@ passport.use(
 //     console.log('get /');
 //     res.send('SSO Hello world');
 // });
+// app.use(require('cookie-parser')());
+// app.use(require('body-parser').urlencoded({ extended: true }));
+app.use(passport.initialize());
 app.get(
     '/callback',
     passport.authenticate('oauth2', {

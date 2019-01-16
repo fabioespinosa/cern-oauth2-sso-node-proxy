@@ -368,10 +368,14 @@ OAuth2Strategy.prototype.userProfile = function(accessToken, done) {
             var raw_json = response.data;
             var json = {};
             json['http://schemas.xmlsoap.org/claims/Group'] = [];
-            raw_json.forEach(function(item, i, arr) {
-                if (item['Type'] !== 'http://schemas.xmlsoap.org/claims/Group')
+            raw_json.forEach(item => {
+                if (
+                    item['Type'] !== 'http://schemas.xmlsoap.org/claims/Group'
+                ) {
                     json[item['Type']] = item['Value'];
-                else json[item['Type']].push(item['Value']);
+                } else {
+                    json[item['Type']].push(item['Value']);
+                }
             });
 
             var profile = { provider: 'cern' };
@@ -383,8 +387,6 @@ OAuth2Strategy.prototype.userProfile = function(accessToken, done) {
             profile.groups = json['http://schemas.xmlsoap.org/claims/Group'];
             profile.email =
                 json['http://schemas.xmlsoap.org/claims/EmailAddress'];
-
-            profile._raw = response.data;
             console.log(profile);
             done(null, profile);
         })
@@ -394,54 +396,6 @@ OAuth2Strategy.prototype.userProfile = function(accessToken, done) {
             console.log(err.message);
             done(err);
         });
-
-    // this._oauth2.get(
-    //     'https://oauthresource.web.cern.ch/api/Me',
-    //     accessToken,
-    //     function(err, body, res) {
-    //         if (err) {
-    //             console.log('ERROR IN fetching /api/Me');
-    //             console.log(err, err.message);
-    //             return done(
-    //                 new InternalOAuthError('failed to fetch user profile', err)
-    //             );
-    //         }
-
-    //         try {
-    //             var raw_json = JSON.parse(body);
-    //             var json = {};
-    //             json['http://schemas.xmlsoap.org/claims/Group'] = [];
-    //             raw_json.forEach(function(item, i, arr) {
-    //                 if (
-    //                     item['Type'] !==
-    //                     'http://schemas.xmlsoap.org/claims/Group'
-    //                 )
-    //                     json[item['Type']] = item['Value'];
-    //                 else json[item['Type']].push(item['Value']);
-    //             });
-
-    //             var profile = { provider: 'cern' };
-
-    //             profile.id = json['http://schemas.xmlsoap.org/claims/PersonID'];
-    //             profile.displayName =
-    //                 json['http://schemas.xmlsoap.org/claims/DisplayName'];
-    //             profile.name =
-    //                 json['http://schemas.xmlsoap.org/claims/CommonName'];
-    //             profile.groups =
-    //                 json['http://schemas.xmlsoap.org/claims/Group'];
-    //             profile.email =
-    //                 json['http://schemas.xmlsoap.org/claims/EmailAddress'];
-
-    //             profile._raw = body;
-    //             profile._json = json;
-
-    //             done(null, profile);
-    //         } catch (e) {
-    //             console.log('error in try', e);
-    //             done(e);
-    //         }
-    //     }
-    // );
 };
 
 /**
