@@ -2,7 +2,11 @@ const express = require('express');
 const passport = require('passport');
 const OAuth2Strategy = require('./passport-oauth2');
 const app = express();
+const http = require('http');
+const httpProxy = require('http-proxy');
 const port = 3000;
+
+const proxy = httpProxy.createProxyServer({});
 
 passport.use(
     new OAuth2Strategy(
@@ -14,21 +18,11 @@ passport.use(
             callbackURL: 'https://cmsrunregistry.web.cern.ch/callback'
         },
         function(accessToken, refreshToken, profile, cb) {
-            console.log('made it');
-            console.log('accesstoken', accessToken);
-            console.log('refreshtoken', refreshToken);
-            console.log('profile', profile);
             cb(null, profile);
         }
     )
 );
 
-// app.get('/', (req, res) => {
-//     console.log('get /');
-//     res.send('SSO Hello world');
-// });
-// app.use(require('cookie-parser')());
-// app.use(require('body-parser').urlencoded({ extended: true }));
 app.use(passport.initialize());
 app.get(
     '/callback',
@@ -37,17 +31,14 @@ app.get(
         session: false
     }),
     function(req, res) {
-        console.log('success');
-        console.log(req.user);
-        res.redirect('/something');
+        console.log(req.user.displayName);
+        res.redirect('cms-');
     }
 );
-app.get('/something', passport.authenticate('oauth2'), (req, res) => {
-    res.send('made it');
+app.get('*', passport.authenticate('oauth2'), (req, res) => {
+    proxy.web(req, res, {
+        target: 'http://cms-rr-prod.cern.ch'
+    });
 });
 
-app.post('/callback', (req, res) => {
-    console.log(req);
-    console.log(res);
-});
 app.listen(port, () => console.log('SSO Hello world started'));
