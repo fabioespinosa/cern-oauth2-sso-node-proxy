@@ -27,7 +27,6 @@ app.all('/api/*', (req, res) => {
 
 app.use(cookieParser());
 app.use(bodyParser.json());
-app.use(session({ secret: 'anything' }));
 app.use(passport.initialize());
 app.use(passport.session()); // Used to persist login sessions
 
@@ -57,7 +56,6 @@ passport.deserializeUser((user, done) => {
 
 // Middleware to check if the user is authenticated
 function isUserAuthenticated(req, res, next) {
-    console.log('is user auth user', typeof req.user);
     if (req.user) {
         next();
     } else {
