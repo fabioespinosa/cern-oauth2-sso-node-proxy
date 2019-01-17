@@ -34,7 +34,8 @@ app.get(
     function(req, res) {
         console.log(req.user.displayName);
         console.log(req.headers);
-        res.redirect('/proxy/online/runs/all');
+        res.send('authenticated');
+        // res.redirect('/proxy/online/runs/all');
     }
 );
 app.get('/error', (req, res) => {
@@ -43,9 +44,10 @@ app.get('/error', (req, res) => {
 
 app.get('/proxy/*', passport.authenticate('oauth2'), (req, res) => {
     console.log('hola');
-    proxy.web(req, res, {
-        target: 'http://cms-rr-prod.cern.ch:7001'
-    });
+    res.send('it works');
+    // proxy.web(req, res, {
+    //     target: 'http://cms-rr-prod.cern.ch:7001'
+    // });
 });
 
 app.listen(port, () => console.log('SSO Hello world started'));
