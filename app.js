@@ -5,11 +5,12 @@ const app = express();
 const http = require('http');
 const httpProxy = require('http-proxy');
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 const port = 3000;
 
 const proxy = httpProxy.createProxyServer({});
 
-app.use(express.cookieParser());
+app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(session({ secret: 'anything' }));
 app.use(passport.initialize());
