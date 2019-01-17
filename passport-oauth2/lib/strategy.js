@@ -139,7 +139,6 @@ util.inherits(OAuth2Strategy, passport.Strategy);
  * @api protected
  */
 OAuth2Strategy.prototype.authenticate = function(req, options) {
-    console.log('start auth');
     options = options || {};
     var self = this;
 

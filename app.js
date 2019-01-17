@@ -47,13 +47,9 @@ passport.use(
 );
 
 // Used to stuff a piece of information into a cookie
-passport.serializeUser((user, done) => {
+passport.serializeUser = passport.deserializeUser = (user, done) => {
     done(null, user);
-});
-
-passport.deserializeUser((user, done) => {
-    done(null, user);
-});
+};
 
 // Middleware to check if the user is authenticated
 function isUserAuthenticated(req, res, next) {
@@ -106,7 +102,7 @@ proxy.on('error', function(err, req, res) {
         'Content-Type': 'text/plain'
     });
 
-    res.end(err.message);
+    res.end(`${err.message} ----------- ${JSON.stringify(err)}`);
 });
 
-app.listen(port, () => console.log('SSO Hello world started'));
+app.listen(port, () => console.log('OAUTH Proxy started'));
