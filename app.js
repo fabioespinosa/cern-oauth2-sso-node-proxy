@@ -9,6 +9,8 @@ const port = 3000;
 const proxy = httpProxy.createProxyServer({});
 
 app.use(passport.initialize());
+app.use(passport.session()); // Used to persist login sessions
+
 passport.use(
     new OAuth2Strategy(
         {
@@ -26,6 +28,24 @@ passport.use(
     )
 );
 
+// Used to stuff a piece of information into a cookie
+passport.serializeUser((user, done) => {
+    done(null, user);
+});
+
+passport.deserializeUser((user, done) => {
+    done(null, user);
+});
+
+// Middleware to check if the user is authenticated
+function isUserAuthenticated(req, res, next) {
+    if (req.user) {
+        next();
+    } else {
+        res.send('You must login!');
+    }
+}
+
 app.get(
     '/callback',
     passport.authenticate('oauth2', {
@@ -38,24 +58,26 @@ app.get(
         res.redirect('/secret');
     }
 );
+
+// Logout route
+app.get('/logout', (req, res) => {
+    req.logout();
+    res.redirect('/');
+});
 app.get('/error', (req, res) => {
     res.send('Error authenticating user');
 });
 
-app.get(
-    '/secret',
-    passport.authenticate('oauth2', { session: false }),
-    (req, res) => {
-        res.send('this is secret and everything worked');
-    }
-);
+app.get('/secret', isUserAuthenticated, (req, res) => {
+    res.send('this is secret and everything worked');
+});
 
-// app.get('*', passport.authenticate('oauth2'), (req, res) => {
-//     console.log('hola');
-//     res.send('it works');
-//     // proxy.web(req, res, {
-//     //     target: 'http://cms-rr-prod.cern.ch:7001'
-//     // });
-// });
+app.get('*', isUserAuthenticated, (req, res) => {
+    console.log('hola');
+    res.send('it works');
+    // proxy.web(req, res, {
+    //     target: 'http://cms-rr-prod.cern.ch:7001'
+    // });
+});
 
 app.listen(port, () => console.log('SSO Hello world started'));
