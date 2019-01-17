@@ -15,13 +15,13 @@ const proxy = httpProxy.createProxyServer({});
 
 // API requests (GET, POST, PUT, ...):
 app.all('/api/*', (req, res) => {
+    // Remove the API from path
     const new_path = req.url.split('/api')[1];
     req.path = new_path;
     req.url = new_path;
     req.originalUrl = new_path;
-    console.log(req.url);
     proxy.web(req, res, {
-        target: 'http://localhost:7003'
+        target: 'http://cms-rr-prod.cern.ch:7003'
     });
 });
 
