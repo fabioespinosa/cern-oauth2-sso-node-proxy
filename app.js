@@ -89,10 +89,12 @@ app.get('/error', (req, res) => {
 app.all('*', isUserAuthenticated, (req, res) => {
     proxy.on('proxyReq', (proxyReq, req, res, options) => {
         const { user } = req;
-        proxyReq.setHeader('displayName', user.displayName);
-        proxyReq.setHeader('egroups', user.egroups);
-        proxyReq.setHeader('email', user.email);
-        proxyReq.setHeader('id', user.id);
+        if (user) {
+            proxyReq.setHeader('displayName', user.displayName);
+            proxyReq.setHeader('egroups', user.egroups);
+            proxyReq.setHeader('email', user.email);
+            proxyReq.setHeader('id', user.id);
+        }
     });
     proxy.web(req, res, {
         target: 'http://cms-rr-prod.cern.ch:7001'
