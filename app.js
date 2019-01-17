@@ -28,13 +28,10 @@ app.get(
     '/callback',
     passport.authenticate('oauth2', {
         failureRedirect: '/error',
-        session: false
+        session: true
     }),
-    function(req, res, next) {
+    function(req, res) {
         console.log(req.user.displayName);
-        proxy.web(req, res, {
-            target: 'http://cms-rr-prod.cern.ch:7001'
-        });
     }
 );
 app.get('/error', (req, res) => {
