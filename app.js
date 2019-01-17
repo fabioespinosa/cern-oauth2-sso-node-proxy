@@ -38,7 +38,7 @@ app.get('/error', (req, res) => {
     res.send('Error authenticating user');
 });
 
-app.get('*', passport.authenticate('oauth2'), (req, res) => {
+app.get('/proxy/*', passport.authenticate('oauth2'), (req, res) => {
     console.log('hola');
     proxy.web(req, res, {
         target: 'http://cms-rr-prod.cern.ch:7001'
