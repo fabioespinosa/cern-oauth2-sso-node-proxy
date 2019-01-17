@@ -25,7 +25,7 @@ const proxy = httpProxy.createProxyServer({});
 //     )
 // );
 
-app.get('/proxy/*', (req, res) => {
+app.get('*', (req, res) => {
     // console.log('hola');
     // res.send('it works');
     proxy.web(req, res, {
