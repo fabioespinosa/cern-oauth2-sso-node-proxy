@@ -77,8 +77,11 @@ app.get('/error', (req, res) => {
 
 // API requests (GET, POST, PUT, ...):
 app.all('/api/*', (req, res) => {
-    req.url = req.url.split('/api')[1];
-    console.log(req.url);
+    console.log('h');
+    const new_path = req.url.split('/api')[1];
+    req.url = new_path;
+    req.originalUrl = new_path;
+    debugger;
     proxy.web(req, res, {
         target: 'http://cms-rr-prod.cern.ch:7003'
     });
@@ -86,7 +89,7 @@ app.all('/api/*', (req, res) => {
 app.post;
 
 // Client requests
-app.all('*', passport.use('oauth2'), (req, res) => {
+app.all('*', passport.authenticate('oauth2'), (req, res) => {
     proxy.web(req, res, {
         target: 'http://cms-rr-prod.cern.ch:7001'
     });
