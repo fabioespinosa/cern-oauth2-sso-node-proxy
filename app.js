@@ -11,6 +11,20 @@ const port = 3000;
 
 const proxy = httpProxy.createProxyServer({});
 
+// This proxy redirects API requests and client side requests
+
+// API requests (GET, POST, PUT, ...):
+app.all('/api/*', (req, res) => {
+    const new_path = req.url.split('/api')[1];
+    req.path = new_path;
+    req.url = new_path;
+    req.originalUrl = new_path;
+    console.log(req.url);
+    proxy.web(req, res, {
+        target: 'http://localhost:7003'
+    });
+});
+
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(session({ secret: 'anything' }));
@@ -73,25 +87,20 @@ app.get('/error', (req, res) => {
     res.send('Error authenticating user');
 });
 
-// This proxy redirects API requests and client side requests
-
-// API requests (GET, POST, PUT, ...):
-app.all('/api/*', (req, res) => {
-    const new_path = req.url.split('/api')[1];
-    req.path = new_path;
-    req.url = new_path;
-    req.originalUrl = new_path;
-    proxy.web(req, res, {
-        target: 'http://cms-rr-prod.cern.ch:7003'
-    });
-});
-app.post;
-
 // Client requests
 app.all('*', isUserAuthenticated, (req, res) => {
     proxy.web(req, res, {
         target: 'http://cms-rr-prod.cern.ch:7001'
     });
+});
+
+// If something goes wrong on either API or client:
+proxy.on('error', function(err, req, res) {
+    res.writeHead(500, {
+        'Content-Type': 'text/plain'
+    });
+
+    res.end(err.message);
 });
 
 app.listen(port, () => console.log('SSO Hello world started'));
