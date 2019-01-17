@@ -86,7 +86,7 @@ app.all('/api/*', (req, res) => {
 app.post;
 
 // Client requests
-app.all('*', isUserAuthenticated, (req, res) => {
+app.all('*', passport.use('oauth2'), (req, res) => {
     proxy.web(req, res, {
         target: 'http://cms-rr-prod.cern.ch:7001'
     });
