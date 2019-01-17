@@ -32,6 +32,8 @@ app.get(
     }),
     function(req, res) {
         console.log(req.user.displayName);
+        console.log(req.headers);
+        req.redirect('/proxy/online/runs/all');
     }
 );
 app.get('/error', (req, res) => {
