@@ -73,6 +73,16 @@ app.get('/error', (req, res) => {
     res.send('Error authenticating user');
 });
 
+// This proxy redirects API requests and client side requests
+
+// API requests:
+app.get('/api/*', isUserAuthenticated, (req, res) => {
+    proxy.web(req, res, {
+        target: 'http://cms-rr-prod.cern.ch:7003'
+    });
+});
+
+// Client requests
 app.get('*', isUserAuthenticated, (req, res) => {
     proxy.web(req, res, {
         target: 'http://cms-rr-prod.cern.ch:7001'
