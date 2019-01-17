@@ -41,8 +41,6 @@ passport.use(
             callbackURL: 'https://cmsrunregistry.web.cern.ch/callback'
         },
         function(accessToken, refreshToken, profile, done) {
-            profile.accessToken = accessToken;
-            console.log('profile', profile);
             done(null, profile);
         }
     )
@@ -63,7 +61,7 @@ function isUserAuthenticated(req, res, next) {
     if (req.user) {
         next();
     } else {
-        res.send('You must login!');
+        res.redirect('/callback');
     }
 }
 
@@ -74,7 +72,7 @@ app.get(
     }),
     function(req, res) {
         console.log(req.user.displayName);
-        res.redirect('/secret');
+        res.redirect('/');
     }
 );
 
