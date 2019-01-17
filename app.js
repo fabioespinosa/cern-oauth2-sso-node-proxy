@@ -17,8 +17,9 @@ passport.use(
             clientSecret: 'h00FZSTyBjlalYKp7GqdBZQP2heMeaqLnpSNiTNXvcc1',
             callbackURL: 'https://cmsrunregistry.web.cern.ch/callback'
         },
-        function(accessToken, refreshToken, profile, cb) {
-            cb(null, profile);
+        function(accessToken, refreshToken, profile, done) {
+            console.log('profile', profile);
+            done(null, profile);
         }
     )
 );
@@ -33,7 +34,7 @@ app.get(
     function(req, res) {
         console.log(req.user.displayName);
         console.log(req.headers);
-        req.redirect('/proxy/online/runs/all');
+        res.redirect('/proxy/online/runs/all');
     }
 );
 app.get('/error', (req, res) => {

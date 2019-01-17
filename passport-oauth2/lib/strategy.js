@@ -391,7 +391,7 @@ OAuth2Strategy.prototype.userProfile = function(accessToken, done) {
             done(null, profile);
         })
         .catch(err => {
-            console.log('error in request');
+            console.log('error in getting user profile');
             console.log(err.data);
             console.log(err.message);
             done(err);
