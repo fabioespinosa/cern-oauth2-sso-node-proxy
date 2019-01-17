@@ -60,7 +60,6 @@ app.get(
     }),
     function(req, res) {
         console.log(req.user.displayName);
-        console.log(req.headers);
         res.redirect('/secret');
     }
 );
@@ -74,16 +73,10 @@ app.get('/error', (req, res) => {
     res.send('Error authenticating user');
 });
 
-app.get('/secret', isUserAuthenticated, (req, res) => {
-    res.send('this is secret and everything worked');
-});
-
 app.get('*', isUserAuthenticated, (req, res) => {
-    console.log('hola');
-    res.send('it works');
-    // proxy.web(req, res, {
-    //     target: 'http://cms-rr-prod.cern.ch:7001'
-    // });
+    proxy.web(req, res, {
+        target: 'http://cms-rr-prod.cern.ch:7001'
+    });
 });
 
 app.listen(port, () => console.log('SSO Hello world started'));
