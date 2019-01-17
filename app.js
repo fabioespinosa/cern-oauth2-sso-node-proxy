@@ -6,6 +6,7 @@ const http = require('http');
 const httpProxy = require('http-proxy');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
+const session = require('express-session');
 const port = 3000;
 
 const proxy = httpProxy.createProxyServer({});
@@ -44,6 +45,7 @@ passport.deserializeUser((user, done) => {
 
 // Middleware to check if the user is authenticated
 function isUserAuthenticated(req, res, next) {
+    console.log('is user auth user', req.user);
     if (req.user) {
         next();
     } else {
