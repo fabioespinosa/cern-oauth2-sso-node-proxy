@@ -28,7 +28,7 @@ app.get(
     '/callback',
     passport.authenticate('oauth2', {
         failureRedirect: '/error',
-        session: true
+        session: false
     }),
     function(req, res) {
         console.log(req.user.displayName);
