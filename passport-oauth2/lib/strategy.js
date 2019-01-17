@@ -364,26 +364,27 @@ OAuth2Strategy.prototype.userProfile = function(accessToken, done) {
             headers: { Authorization: `Bearer ${accessToken}` }
         })
         .then(response => {
-            var raw_json = response.data;
-            var json = {};
-            json['http://schemas.xmlsoap.org/claims/Group'] = [];
-            raw_json.forEach(item => {
-                if (
-                    item['Type'] !== 'http://schemas.xmlsoap.org/claims/Group'
-                ) {
-                    json[item['Type']] = item['Value'];
+            var user_data = response.data;
+            const profile = { provider: 'cern' };
+            profile.egroups = '';
+            const json = {};
+            user_data.forEach(({ Type, Value }) => {
+                // See https://test-oauth.web.cern.ch/ to see how the data is structured
+                if (Type === 'http://schemas.xmlsoap.org/claims/Group') {
+                    // Put e-groups separated by semicolon:
+                    if (profile.egroups === '') {
+                        profile.egroups = Value;
+                    } else {
+                        profile.egroups = `${profile.egroups};${Value}`;
+                    }
                 } else {
-                    json[item['Type']].push(item['Value']);
+                    json[Type] = Value;
                 }
             });
 
-            var profile = { provider: 'cern' };
-
             profile.id = json['http://schemas.xmlsoap.org/claims/PersonID'];
-            profile.displayName =
+            profile.full_name =
                 json['http://schemas.xmlsoap.org/claims/DisplayName'];
-            profile.name = json['http://schemas.xmlsoap.org/claims/CommonName'];
-            profile.groups = json['http://schemas.xmlsoap.org/claims/Group'];
             profile.email =
                 json['http://schemas.xmlsoap.org/claims/EmailAddress'];
             done(null, profile);

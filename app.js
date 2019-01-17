@@ -57,7 +57,7 @@ passport.deserializeUser((user, done) => {
 
 // Middleware to check if the user is authenticated
 function isUserAuthenticated(req, res, next) {
-    console.log('is user auth user', req.user);
+    console.log('is user auth user', typeof req.user);
     if (req.user) {
         next();
     } else {
@@ -87,6 +87,12 @@ app.get('/error', (req, res) => {
 
 // Client requests
 app.all('*', isUserAuthenticated, (req, res) => {
+    proxy.on('proxyReq', (proxyReq, req, res, options) => {
+        proxyReq.setHeader('displayName', profile.displayName);
+        proxyReq.setHeader('egroups', profile.egroups);
+        proxyReq.setHeader('email', profile.email);
+        proxyReq.setHeader('id', profile.id);
+    });
     proxy.web(req, res, {
         target: 'http://cms-rr-prod.cern.ch:7001'
     });
