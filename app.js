@@ -42,9 +42,13 @@ app.get('/error', (req, res) => {
     res.send('Error authenticating user');
 });
 
-app.get('/secret', passport.authenticate('oauth2'), (req, res) => {
-    res.send('this is secret and everything worked');
-});
+app.get(
+    '/secret',
+    passport.authenticate('oauth2', { session: false }),
+    (req, res) => {
+        res.send('this is secret and everything worked');
+    }
+);
 
 // app.get('*', passport.authenticate('oauth2'), (req, res) => {
 //     console.log('hola');
