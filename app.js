@@ -77,6 +77,8 @@ app.get('/error', (req, res) => {
 
 // API requests (GET, POST, PUT, ...):
 app.all('/api/*', (req, res) => {
+    req.url = req.url.split('/api')[1];
+    console.log(req.url);
     proxy.web(req, res, {
         target: 'http://cms-rr-prod.cern.ch:7003'
     });
