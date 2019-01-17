@@ -4,10 +4,14 @@ const OAuth2Strategy = require('./passport-oauth2');
 const app = express();
 const http = require('http');
 const httpProxy = require('http-proxy');
+const bodyParser = require('body-parser');
 const port = 3000;
 
 const proxy = httpProxy.createProxyServer({});
 
+app.use(express.cookieParser());
+app.use(bodyParser.json());
+app.use(session({ secret: 'anything' }));
 app.use(passport.initialize());
 app.use(passport.session()); // Used to persist login sessions
 
