@@ -27,6 +27,7 @@ app.all('/api/*', (req, res) => {
 
 app.use(cookieParser());
 app.use(bodyParser.json());
+app.use(session({ secret: 'anything' }));
 app.use(passport.initialize());
 app.use(passport.session()); // Used to persist login sessions
 
