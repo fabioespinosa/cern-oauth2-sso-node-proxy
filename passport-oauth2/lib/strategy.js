@@ -365,29 +365,28 @@ OAuth2Strategy.prototype.userProfile = function(accessToken, done) {
         })
         .then(response => {
             var user_data = response.data;
-            const profile = { provider: 'cern' };
-            profile.egroups = '';
+            const user = { provider: 'cern' };
+            user.egroups = '';
             const json = {};
             user_data.forEach(({ Type, Value }) => {
                 // See https://test-oauth.web.cern.ch/ to see how the data is structured
                 if (Type === 'http://schemas.xmlsoap.org/claims/Group') {
                     // Put e-groups separated by semicolon:
-                    if (profile.egroups === '') {
-                        profile.egroups = Value;
+                    if (user.egroups === '') {
+                        user.egroups = Value;
                     } else {
-                        profile.egroups = `${profile.egroups};${Value}`;
+                        user.egroups = `${user.egroups};${Value}`;
                     }
                 } else {
                     json[Type] = Value;
                 }
             });
 
-            profile.id = json['http://schemas.xmlsoap.org/claims/PersonID'];
-            profile.full_name =
+            user.displayName =
                 json['http://schemas.xmlsoap.org/claims/DisplayName'];
-            profile.email =
-                json['http://schemas.xmlsoap.org/claims/EmailAddress'];
-            done(null, profile);
+            user.email = json['http://schemas.xmlsoap.org/claims/EmailAddress'];
+            user.id = json['http://schemas.xmlsoap.org/claims/PersonID'];
+            done(null, user);
         })
         .catch(err => {
             console.log('error in getting user profile');
