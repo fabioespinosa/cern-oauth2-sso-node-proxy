@@ -49,8 +49,7 @@ function isUserAuthenticated(req, res, next) {
 app.get(
     '/callback',
     passport.authenticate('oauth2', {
-        failureRedirect: '/error',
-        session: false
+        failureRedirect: '/error'
     }),
     function(req, res) {
         console.log(req.user.displayName);
