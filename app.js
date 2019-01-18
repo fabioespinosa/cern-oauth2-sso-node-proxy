@@ -47,7 +47,11 @@ passport.use(
 );
 
 // Used to stuff a piece of information into a cookie
-passport.serializeUser = passport.deserializeUser = (user, done) => {
+passport.serializeUser = (user, done) => {
+    done(null, user);
+};
+
+passport.deserializeUser = (user, done) => {
     done(null, user);
 };
 
