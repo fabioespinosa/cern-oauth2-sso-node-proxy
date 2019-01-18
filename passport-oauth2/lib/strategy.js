@@ -380,7 +380,7 @@ OAuth2Strategy.prototype.userProfile = function(accessToken, done) {
                 }
             });
 
-            user.displayName =
+            user.displayname =
                 json['http://schemas.xmlsoap.org/claims/DisplayName'];
             user.email = json['http://schemas.xmlsoap.org/claims/EmailAddress'];
             user.id = json['http://schemas.xmlsoap.org/claims/PersonID'];

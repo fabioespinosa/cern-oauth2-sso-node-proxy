@@ -91,7 +91,7 @@ app.all('*', isUserAuthenticated, (req, res) => {
     proxy.on('proxyReq', (proxyReq, req, res, options) => {
         const { user } = req;
         if (user) {
-            proxyReq.setHeader('displayName', user.displayName);
+            proxyReq.setHeader('displayname', user.displayname);
             proxyReq.setHeader('egroups', user.egroups);
             proxyReq.setHeader('email', user.email);
             proxyReq.setHeader('id', user.id);
