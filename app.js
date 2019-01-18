@@ -38,9 +38,9 @@ passport.use(
         {
             authorizationURL: 'https://oauth.web.cern.ch/OAuth/Authorize',
             tokenURL: 'https://oauth.web.cern.ch/OAuth/Token',
-            clientID: 'cms-hdqm',
-            clientSecret: 'rUc3fwlb4FHYchUEW8onk7bbGwQ4F3vlA9kD82eRtHw1',
-            callbackURL: 'https://cms-hdqm.web.cern.ch/callback'
+            clientID: process.env.clientID,
+            clientSecret: process.env.clientSecret,
+            callbackURL: process.env.callbackURL
         },
         function(accessToken, refreshToken, profile, done) {
             done(null, profile);
