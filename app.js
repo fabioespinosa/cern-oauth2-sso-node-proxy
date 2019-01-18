@@ -47,13 +47,13 @@ passport.use(
 );
 
 // Used to stuff a piece of information into a cookie
-passport.serializeUser = (user, done) => {
+passport.serializeUser(function(user, done) {
     done(null, user);
-};
+});
 
-passport.deserializeUser = (user, done) => {
+passport.deserializeUser(function(user, done) {
     done(null, user);
-};
+});
 
 // Middleware to check if the user is authenticated
 function isUserAuthenticated(req, res, next) {
