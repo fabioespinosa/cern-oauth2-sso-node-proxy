@@ -38,9 +38,9 @@ passport.use(
         {
             authorizationURL: 'https://oauth.web.cern.ch/OAuth/Authorize',
             tokenURL: 'https://oauth.web.cern.ch/OAuth/Token',
-            clientID: 'cms-runregistry',
-            clientSecret: 'h00FZSTyBjlalYKp7GqdBZQP2heMeaqLnpSNiTNXvcc1',
-            callbackURL: 'https://cmsrunregistry.web.cern.ch/callback'
+            clientID: 'cms-hdqm',
+            clientSecret: 'rUc3fwlb4FHYchUEW8onk7bbGwQ4F3vlA9kD82eRtHw1',
+            callbackURL: 'https://cms-hdqm.web.cern.ch/callback'
         },
         function(accessToken, refreshToken, profile, done) {
             done(null, profile);
