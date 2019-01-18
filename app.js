@@ -21,7 +21,7 @@ app.all('/api/*', (req, res) => {
     req.url = new_path;
     req.originalUrl = new_path;
     proxy.web(req, res, {
-        target: process.env.API_URL
+        target: 'http://cms-rr-prod.cern.ch:7003'
     });
 });
 
@@ -92,7 +92,7 @@ app.all('*', isUserAuthenticated, (req, res) => {
         }
     });
     proxy.web(req, res, {
-        target: process.env.CLIENT_URL
+        target: 'http://cms-rr-prod.cern.ch:7001'
     });
 });
 
