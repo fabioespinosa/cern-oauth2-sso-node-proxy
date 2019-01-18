@@ -7,7 +7,7 @@ const httpProxy = require('http-proxy');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
-const port = 3000;
+const port = 8080;
 
 const proxy = httpProxy.createProxyServer({});
 
@@ -21,7 +21,7 @@ app.all('/api/*', (req, res) => {
     req.url = new_path;
     req.originalUrl = new_path;
     proxy.web(req, res, {
-        target: process.env.API_URL
+        target: 'http://cms-rr-prod.cern.ch:7003'
     });
 });
 
@@ -96,7 +96,7 @@ app.all('*', isUserAuthenticated, (req, res) => {
         }
     });
     proxy.web(req, res, {
-        target: process.env.CLIENT_URL
+        target: 'http://cms-rr-prod.cern.ch:7001'
     });
 });
 
