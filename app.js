@@ -29,15 +29,18 @@ if (process.env.API_URL) {
 
 app.use(cookieParser());
 app.use(bodyParser.json());
-app.use(session({ secret: 'anything' }));
+app.use(session({ secret: 'cern' }));
 app.use(passport.initialize());
 app.use(passport.session()); // Used to persist login sessions
 
 passport.use(
     new OAuth2Strategy(
         {
-            authorizationURL: 'https://oauth.web.cern.ch/OAuth/Authorize',
-            tokenURL: 'https://oauth.web.cern.ch/OAuth/Token',
+            authorizationURL:
+                process.env.authorizationURL ||
+                'https://oauth.web.cern.ch/OAuth/Authorize',
+            tokenURL:
+                process.env.tokenURL || 'https://oauth.web.cern.ch/OAuth/Token',
             clientID: process.env.clientID,
             clientSecret: process.env.clientSecret,
             callbackURL: process.env.callbackURL
@@ -111,4 +114,4 @@ proxy.on('error', function(err, req, res) {
     res.end(`${err.message} ----------- ${JSON.stringify(err)}`);
 });
 
-app.listen(port, () => console.log('OAUTH Proxy started'));
+app.listen(port, () => console.log(`OAUTH Proxy started on port ${port}`));
