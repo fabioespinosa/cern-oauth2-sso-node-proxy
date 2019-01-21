@@ -18,12 +18,12 @@ If you include an API_URL environment variable, it will also route /api/\* to th
 
 ## Environment Variables
 
-| Environment Variable | Required | Explanation                                                                                                                                                                    |
-| -------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| CLIENT_URL           | true     | The URL you want to proxy                                                                                                                                                      |
-| clientID             | true     | The client id you get from [CERN AUTH](https://sso-management.web.cern.ch/oauth/registeroauthclient.aspx)                                                                      |
-| clientSecret         | true     | The client secret you get from [CERN AUTH](https://sso-management.web.cern.ch/oauth/registeroauthclient.aspx)                                                                  |
-| callbackURL          | true     | The name of your proxy with '/callback' in the end. The proxy will handle this route, no need to set it up yourself                                                            |
-| authorizationURL     | false    | You might not need to change this, it defaults to https://oauth.web.cern.ch/OAuth/Authorize                                                                                    |
-| tokenURL             | false    | You might not need to change this, it defaults to https://oauth.web.cern.ch/OAuth/Token                                                                                        |
-| API_URL              | false    | If you're also running an API and you want to re-use this proxy, passing this env. variable will make all requests that go to the proxy/api/\* go to the API_URL you provided. |
+| Environment Variable | Required | Explanation                                                                                                                                                                           |
+| -------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| CLIENT_URL           | true     | The URL you want to proxy                                                                                                                                                             |
+| clientID             | true     | The client id you get from [CERN AUTH](https://sso-management.web.cern.ch/oauth/registeroauthclient.aspx)                                                                             |
+| clientSecret         | true     | The client secret you get from [CERN AUTH](https://sso-management.web.cern.ch/oauth/registeroauthclient.aspx)                                                                         |
+| callbackURL          | true     | The name of your proxy with '/callback' in the end. The proxy will handle this route, no need to set it up yourself                                                                   |
+| authorizationURL     | false    | You might not need to change this, it defaults to https://oauth.web.cern.ch/OAuth/Authorize                                                                                           |
+| tokenURL             | false    | You might not need to change this, it defaults to https://oauth.web.cern.ch/OAuth/Token                                                                                               |
+| API_URL              | false    | If you're also running an API and you want to re-use this proxy, passing this environment variable will make all requests that go to the proxy/api/\* go to the API_URL you provided. |
