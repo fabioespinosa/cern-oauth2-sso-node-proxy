@@ -16,6 +16,8 @@ If you include an API_URL environment variable, it will also route /api/\* to th
 6. After your project shows up in the Overview panel, click on it and under the Environment tab, add the info you got from [https://sso-management.web.cern.ch/OAuth/RegisterOAuthClient.aspx](CERN OAuth Registration) as environment variables, as shown in the image: ![Open Shift env variables](https://github.com/fabioespinosa/cern-oauth2-sso-node-proxy/blob/master/readme_images/4.png 'Open Shift env variables')
 7. Wait until the container runs again, and it should be working.
 
+## Environment Variables
+
 | Environment Variable | Required | Explanation                                                                                                                                                                    |
 | -------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | CLIENT_URL           | true     | The URL you want to proxy                                                                                                                                                      |
