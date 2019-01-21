@@ -83,7 +83,7 @@ app.get(
 // Logout route
 app.get('/logout', (req, res) => {
     req.logout();
-    res.redirect('/');
+    res.redirect('https://login.cern.ch/adfs/ls/?wa=wsignout1.0');
 });
 app.get('/error', (req, res) => {
     res.send('Error authenticating user');
