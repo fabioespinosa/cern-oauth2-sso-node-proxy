@@ -83,9 +83,10 @@ app.get(
 // Logout route
 app.get('/logout', (req, res) => {
     req.logout();
-    delete req.session;
-    delete req.user;
-    res.redirect('https://login.cern.ch/adfs/ls/?wa=wsignout1.0');
+    req.session.destroy(function() {
+        res.clearCookie('connect.sid');
+        res.redirect('https://login.cern.ch/adfs/ls/?wa=wsignout1.0');
+    });
 });
 app.get('/error', (req, res) => {
     res.send('Error authenticating user');
