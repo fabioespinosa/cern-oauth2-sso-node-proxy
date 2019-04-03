@@ -67,15 +67,13 @@ function isUserAuthenticated(req, res, next) {
     } else {
         console.log('/isUserAuth, baseURL', req.baseUrl);
         console.log('/isUserAuth, originalURL', req.originalUrl);
-        res.redirect(`/callback?original_url=${req.originalUrl}`, );
+        req.session.returnTo = req.originalUrl;
+        res.redirect('/callback', );
     }
 }
 
 app.get(
-    '/callback', function(req, res, next){
-        console.log('cb', req.originalUrl);
-        next();
-    },
+    '/callback',
     passport.authenticate('oauth2', {
         failureRedirect: '/error'
     }),
@@ -83,7 +81,8 @@ app.get(
         console.log('/callback, baseURL', req.baseUrl);
         console.log('/callback, originalURL', req.originalUrl);
         console.log(req.user.displayName);
-        res.redirect('/');
+        res.redirect(req.session.returnTo || '/');
+        delete req.session.returnTo
     }
 );
 
