@@ -72,7 +72,10 @@ function isUserAuthenticated(req, res, next) {
 }
 
 app.get(
-    '/callback',
+    '/callback', function(req, res, next){
+        console.log('cb', req.originalUrl);
+        next();
+    },
     passport.authenticate('oauth2', {
         failureRedirect: '/error'
     }),
