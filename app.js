@@ -67,7 +67,7 @@ function isUserAuthenticated(req, res, next) {
     } else {
         console.log('/isUserAuth, baseURL', req.baseUrl);
         console.log('/isUserAuth, originalURL', req.originalUrl);
-        res.redirect('/callback');
+        res.redirect(`/callback&original_url=${req.originalUrl}`, );
     }
 }
 
