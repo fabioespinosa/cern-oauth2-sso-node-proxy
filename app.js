@@ -74,6 +74,7 @@ function isUserAuthenticated(req, res, next) {
 app.get(
     '/callback', function(req, res, next){
         console.log('cb', req.originalUrl);
+        req.first_url = req.originalUrl.split('?')[1].split('=')[1];
         next();
     },
     passport.authenticate('oauth2', {
@@ -83,7 +84,7 @@ app.get(
         console.log('/callback, baseURL', req.baseUrl);
         console.log('/callback, originalURL', req.originalUrl);
         console.log(req.user.displayName);
-        res.redirect('/');
+        res.redirect(req.first_url);
     }
 );
 
