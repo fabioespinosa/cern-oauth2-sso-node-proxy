@@ -65,7 +65,8 @@ function isUserAuthenticated(req, res, next) {
     if (req.user) {
         next();
     } else {
-        console.log('isuserAuth', JSON.stringify(req));
+        console.log('/isUserAuth, baseURL', req.baseUrl);
+        console.log('/isUserAuth, originalURL', req.originalUrl);
         res.redirect('/callback');
     }
 }
@@ -76,7 +77,8 @@ app.get(
         failureRedirect: '/error'
     }),
     function(req, res) {
-        console.log('/callback', JSON.stringify(req));
+        console.log('/callback, baseURL', req.baseUrl);
+        console.log('/callback, originalURL', req.originalUrl);
         console.log(req.user.displayName);
         res.redirect('/');
     }
