@@ -14,11 +14,8 @@ const proxy = httpProxy.createProxyServer({});
 app.use(cookieParser());
 app.use(session({ secret: 'cern' }));
 app.all('/api/*', (req, res, next) => {
-    console.log('cookies: ', JSON.stringify(req.cookies));
-    console.log('headers: ', JSON.stringify(req.headers));
     req.cookies['connect.sid'] =
         req.cookies['connect.sid'] || req.headers['connect.sid'];
-    console.log('cookies2: ', JSON.stringify(req.cookies));
     next();
 });
 // This proxy redirects API requests and client side requests
@@ -74,7 +71,12 @@ function isUserAuthenticated(req, res, next) {
     if (req.user) {
         console.log('authed', req.originalUrl);
         next();
-    } else {
+    }
+    else if(req.originalUrl.includes('/api'){
+        console.log(JSON.stringify(req.headers));
+        next();
+    }
+    else {
         req.session.returnTo = req.originalUrl;
         res.redirect('/callback');
     }
