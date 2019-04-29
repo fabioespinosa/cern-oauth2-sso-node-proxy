@@ -18,7 +18,8 @@ const proxy = httpProxy.createProxyServer({});
 
 app.use(cookieParser());
 app.all('/api/*', (req, res, next) => {
-    console.log(JSON.stringify(req.headers));
+    console.log('cookies: ', JSON.stringify(req.cookies));
+    console.log('headers: ', JSON.stringify(req.headers));
     req.cookies['connect.sid'] = req.cookies['connect.sid'] || req.headers['connect.sid']; 
     next();
 });
