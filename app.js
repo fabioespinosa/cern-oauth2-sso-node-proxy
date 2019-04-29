@@ -21,6 +21,7 @@ app.all('/api/*', (req, res, next) => {
     console.log('cookies: ', JSON.stringify(req.cookies));
     console.log('headers: ', JSON.stringify(req.headers));
     req.cookies['connect.sid'] = req.cookies['connect.sid'] || req.headers['connect.sid']; 
+    console.log('cookies2: ', JSON.stringify(req.cookies));
     next();
 });
 app.use(bodyParser.json());
