@@ -73,10 +73,6 @@ function isUserAuthenticated(req, res, next) {
         console.log('authed', req.originalUrl);
         next();
     }
-    else if(req.originalUrl.includes('/api') && (referer.startsWith('https://cmsrunregistry.web.cern.ch') || referer.startsWith('https://dev-cmsrunregistry.web.cern.ch'))){
-        console.log(JSON.stringify(req.headers));
-        next();
-    }
     else {
         req.session.returnTo = req.originalUrl;
         res.redirect('/callback');
