@@ -95,6 +95,7 @@ if (process.env.API_URL) {
     app.all('/api/*'
             , isUserAuthenticated
             ,  (req, res) => {
+        console.log('api request');
         // Remove the API from path
         const new_path = req.url.split('/api')[1];
         req.path = new_path;
