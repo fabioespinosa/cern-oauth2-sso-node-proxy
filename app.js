@@ -12,7 +12,21 @@ const port = 8080;
 const proxy = httpProxy.createProxyServer({});
 
 // This proxy redirects API requests and client side requests
-
+// API requests (GET, POST, PUT, ...):
+if (process.env.API_URL) {
+    app.all('/api/*'
+            //, isUserAuthenticated
+            ,  (req, res) => {
+        // Remove the API from path
+        const new_path = req.url.split('/api')[1];
+        req.path = new_path;
+        req.url = new_path;
+        req.originalUrl = new_path;
+        proxy.web(req, res, {
+            target: process.env.API_URL
+        });
+    });
+}
 
 
 app.use(cookieParser());
@@ -80,19 +94,7 @@ app.get('/error', (req, res) => {
     res.send('Error authenticating user');
 });
 
-// API requests (GET, POST, PUT, ...):
-if (process.env.API_URL) {
-    app.all('/api/*', isUserAuthenticated,  (req, res) => {
-        // Remove the API from path
-        const new_path = req.url.split('/api')[1];
-        req.path = new_path;
-        req.url = new_path;
-        req.originalUrl = new_path;
-        proxy.web(req, res, {
-            target: process.env.API_URL
-        });
-    });
-}
+
 
 
 
