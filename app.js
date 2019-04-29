@@ -18,6 +18,7 @@ const proxy = httpProxy.createProxyServer({});
 
 app.use(cookieParser());
 app.all('/api/*', (req, res, next) => {
+    console.log(JSON.stringify(req.headers));
     req.cookies['connect.sid'] = req.cookies['connect.sid'] || req.headers['connect.sid']; 
     next();
 });
@@ -108,7 +109,6 @@ app.all('*', isUserAuthenticated, (req, res) => {
     proxy.on('proxyReq', (proxyReq, req, res, options) => {
         const { user } = req;
         if (user) {
-            console.log(JSON.stringify(req.cookies));
             proxyReq.setHeader('displayname', user.displayname);
             proxyReq.setHeader('egroups', user.egroups);
             proxyReq.setHeader('email', user.email);
