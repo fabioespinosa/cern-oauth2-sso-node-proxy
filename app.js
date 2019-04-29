@@ -13,26 +13,12 @@ const proxy = httpProxy.createProxyServer({});
 
 app.use(cookieParser());
 app.use(session({ secret: 'cern' }));
-app.all('/api/*', (req, res, next) => {
-    req.cookies['connect.sid'] =
-        req.cookies['connect.sid'] || req.headers['connect.sid'];
-    next();
-});
-// This proxy redirects API requests and client side requests
-// API requests (GET, POST, PUT, ...):
-if (process.env.API_URL) {
-    app.all('/api/*', isUserAuthenticated, (req, res) => {
-        console.log('api request');
-        // Remove the API from path
-        const new_path = req.url.split('/api')[1];
-        req.path = new_path;
-        req.url = new_path;
-        req.originalUrl = new_path;
-        proxy.web(req, res, {
-            target: process.env.API_URL
-        });
-    });
-}
+//app.all('/api/*', (req, res, next) => {
+//    req.cookies['connect.sid'] =
+    //    req.cookies['connect.sid'] || req.headers['connect.sid'];
+  //  next();
+//});
+
 
 // app.use(bodyParser.json());
 
@@ -100,6 +86,22 @@ app.get('/error', (req, res) => {
     res.send('Error authenticating user');
 });
 
+// This proxy redirects API requests and client side requests
+// API requests (GET, POST, PUT, ...):
+if (process.env.API_URL) {
+    app.all('/api/*', isUserAuthenticated, (req, res) => {
+        console.log('api request');
+        // Remove the API from path
+        const new_path = req.url.split('/api')[1];
+        req.path = new_path;
+        req.url = new_path;
+        req.originalUrl = new_path;
+        proxy.web(req, res, {
+            target: process.env.API_URL
+        });
+    });
+}
+
 // Client requests
 app.all('*', isUserAuthenticated, (req, res) => {
     proxy.on('proxyReq', (proxyReq, req, res, options) => {
@@ -112,10 +114,13 @@ app.all('*', isUserAuthenticated, (req, res) => {
             proxyReq.setHeader('connect.sid', req.cookies['connect.sid']);
         }
     });
+    
     proxy.web(req, res, {
         target: process.env.CLIENT_URL
     });
 });
+
+
 
 // If something goes wrong on either API or client:
 proxy.on('error', function(err, req, res) {
