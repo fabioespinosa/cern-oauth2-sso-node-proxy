@@ -72,7 +72,7 @@ function isUserAuthenticated(req, res, next) {
         console.log('authed', req.originalUrl);
         next();
     }
-    else if(req.originalUrl.includes('/api'){
+    else if(req.originalUrl.includes('/api')){
         console.log(JSON.stringify(req.headers));
         next();
     }
