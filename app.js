@@ -11,7 +11,14 @@ const port = 8080;
 
 const proxy = httpProxy.createProxyServer({});
 
-
+app.use(cookieParser());
+app.all('/api/*', (req, res, next) => {
+    console.log('cookies: ', JSON.stringify(req.cookies));
+    console.log('headers: ', JSON.stringify(req.headers));
+    req.cookies['connect.sid'] = req.cookies['connect.sid'] || req.headers['connect.sid']; 
+    console.log('cookies2: ', JSON.stringify(req.cookies));
+    next();
+});
 // This proxy redirects API requests and client side requests
 // API requests (GET, POST, PUT, ...):
 if (process.env.API_URL) {
@@ -31,14 +38,7 @@ if (process.env.API_URL) {
 }
 
 
-app.use(cookieParser());
-app.all('/api/*', (req, res, next) => {
-    console.log('cookies: ', JSON.stringify(req.cookies));
-    console.log('headers: ', JSON.stringify(req.headers));
-    req.cookies['connect.sid'] = req.cookies['connect.sid'] || req.headers['connect.sid']; 
-    console.log('cookies2: ', JSON.stringify(req.cookies));
-    next();
-});
+
 app.use(bodyParser.json());
 app.use(session({ secret: 'cern' }));
 app.use(passport.initialize());
