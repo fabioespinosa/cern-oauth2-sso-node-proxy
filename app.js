@@ -11,21 +11,11 @@ const port = 8080;
 
 const proxy = httpProxy.createProxyServer({});
 
-app.use(cookieParser());
-app.all('/api/*', (req, res, next) => {
-    console.log('cookies: ', JSON.stringify(req.cookies));
-    console.log('headers: ', JSON.stringify(req.headers));
-    req.cookies['connect.sid'] = req.cookies['connect.sid'] || req.headers['connect.sid']; 
-    console.log('cookies2: ', JSON.stringify(req.cookies));
-    next();
-});
 // This proxy redirects API requests and client side requests
+
 // API requests (GET, POST, PUT, ...):
 if (process.env.API_URL) {
-    app.all('/api/*'
-            , isUserAuthenticated
-            ,  (req, res) => {
-        console.log('api request');
+    app.all('/api/*', (req, res) => {
         // Remove the API from path
         const new_path = req.url.split('/api')[1];
         req.path = new_path;
@@ -37,8 +27,7 @@ if (process.env.API_URL) {
     });
 }
 
-
-
+app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(session({ secret: 'cern' }));
 app.use(passport.initialize());
@@ -74,7 +63,6 @@ passport.deserializeUser(function(user, done) {
 // Middleware to check if the user is authenticated
 function isUserAuthenticated(req, res, next) {
     if (req.user) {
-        console.log('authed', req.originalUrl);
         next();
     } else {
         req.session.returnTo = req.originalUrl;
@@ -104,10 +92,6 @@ app.get('/error', (req, res) => {
     res.send('Error authenticating user');
 });
 
-
-
-
-
 // Client requests
 app.all('*', isUserAuthenticated, (req, res) => {
     proxy.on('proxyReq', (proxyReq, req, res, options) => {
@@ -117,7 +101,6 @@ app.all('*', isUserAuthenticated, (req, res) => {
             proxyReq.setHeader('egroups', user.egroups);
             proxyReq.setHeader('email', user.email);
             proxyReq.setHeader('id', user.id);
-            proxyReq.setHeader('connect.sid', req.cookies['connect.sid']);
         }
     });
     proxy.web(req, res, {
