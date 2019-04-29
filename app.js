@@ -111,7 +111,7 @@ app.all('*', isUserAuthenticated, (req, res) => {
             proxyReq.setHeader('egroups', user.egroups);
             proxyReq.setHeader('email', user.email);
             proxyReq.setHeader('id', user.id);
-            proxyReq.setHeader('connect.sid', req.cookies['connect.sid']);
+            //proxyReq.setHeader('connect.sid', req.cookies['connect.sid']);
         }
     });
     
