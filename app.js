@@ -13,13 +13,9 @@ const proxy = httpProxy.createProxyServer({});
 
 app.use(cookieParser());
 app.use(session({ secret: 'cern' }));
-//app.all('/api/*', (req, res, next) => {
-//    req.cookies['connect.sid'] =
-    //    req.cookies['connect.sid'] || req.headers['connect.sid'];
-  //  next();
-//});
 
 
+// USE OF BODY PARSER will make proxying of API unusuable (for POST and PUT): see https://github.com/chimurai/http-proxy-middleware/issues/299
 // app.use(bodyParser.json());
 
 app.use(passport.initialize());
@@ -86,12 +82,12 @@ app.get('/error', (req, res) => {
     res.send('Error authenticating user');
 });
 
-// This proxy redirects API requests and client side requests
+// This proxy can also work with an API if provided the API_URL env. variable:
+// Authentication will work normally for a browser that accesses the API, since it already has the session cookie. For API use, it will need to provide with all the cookies after OAUTH
 // API requests (GET, POST, PUT, ...):
 if (process.env.API_URL) {
     app.all('/api/*', isUserAuthenticated, (req, res) => {
-        console.log('api request');
-        // Remove the API from path
+        // Remove the api from url:
         const new_path = req.url.split('/api')[1];
         req.path = new_path;
         req.url = new_path;
@@ -111,7 +107,6 @@ app.all('*', isUserAuthenticated, (req, res) => {
             proxyReq.setHeader('egroups', user.egroups);
             proxyReq.setHeader('email', user.email);
             proxyReq.setHeader('id', user.id);
-            //proxyReq.setHeader('connect.sid', req.cookies['connect.sid']);
         }
     });
     
