@@ -101,11 +101,12 @@ app.all('*', isUserAuthenticated, (req, res) => {
     proxy.on('proxyReq', (proxyReq, req, res, options) => {
         const { user } = req;
         if (user) {
+            console.log(JSON.stringify(req.cookies));
             proxyReq.setHeader('displayname', user.displayname);
             proxyReq.setHeader('egroups', user.egroups);
             proxyReq.setHeader('email', user.email);
             proxyReq.setHeader('id', user.id);
-            proxyReq.setHeader('cookies', req.cookies);
+            proxyReq.setHeader('connect.sid', req.cookies['connect.sid']);
         }
     });
     proxy.web(req, res, {
