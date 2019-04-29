@@ -86,6 +86,17 @@ app.get('/error', (req, res) => {
 // Authentication will work normally for a browser that accesses the API, since it already has the session cookie. For API use, it will need to provide with all the cookies after OAUTH
 // API requests (GET, POST, PUT, ...):
 if (process.env.API_URL) {
+    // If it is internal api we do not do authentication:
+    app.all('/internal_api/*', (req, res) => {
+        // Remove the api from url:
+        const new_path = req.url.split('/internal_api')[1];
+        req.path = new_path;
+        req.url = new_path;
+        req.originalUrl = new_path;
+        proxy.web(req, res, {
+            target: process.env.API_URL
+        });
+    });
     app.all('/api/*', isUserAuthenticated, (req, res) => {
         // Remove the api from url:
         const new_path = req.url.split('/api')[1];
