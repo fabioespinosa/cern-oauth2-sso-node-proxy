@@ -82,7 +82,7 @@ app.get('/error', (req, res) => {
 
 // API requests (GET, POST, PUT, ...):
 if (process.env.API_URL) {
-    app.all('/api/*', (req, res) => {
+    app.all('/api/*', isUserAuthenticated,  (req, res) => {
         // Remove the API from path
         const new_path = req.url.split('/api')[1];
         req.path = new_path;
