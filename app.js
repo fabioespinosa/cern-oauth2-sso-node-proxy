@@ -1,3 +1,6 @@
+// Everything goes through the proxy,
+// If user has cookie from django, it is authenticated, let it through, else, authenticate
+
 const express = require('express');
 const passport = require('passport');
 const OAuth2Strategy = require('./passport-oauth2');
@@ -9,7 +12,11 @@ const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const port = 8080;
 
-const proxy = httpProxy.createProxyServer({});
+const long_timeout = 100000000000;
+const proxy = httpProxy.createProxyServer({
+    timeout: long_timeout,
+    proxyTimeout: long_timeout
+});
 
 // This proxy redirects API requests and client side requests
 
@@ -62,6 +69,10 @@ passport.deserializeUser(function(user, done) {
 
 // Middleware to check if the user is authenticated
 function isUserAuthenticated(req, res, next) {
+    // If the user is authenticated in django (using custom auth, let it through)
+    if (req.cookies.sessionid) {
+        next();
+    }
     if (req.user) {
         next();
     } else {
