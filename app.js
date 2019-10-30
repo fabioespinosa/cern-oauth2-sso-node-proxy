@@ -18,25 +18,13 @@ const proxy = httpProxy.createProxyServer({
     proxyTimeout: long_timeout
 });
 
-// This proxy redirects API requests and client side requests
-
-// API requests (GET, POST, PUT, ...):
-if (process.env.API_URL) {
-    app.all('/api/*', (req, res) => {
-        // Remove the API from path
-        const new_path = req.url.split('/api')[1];
-        req.path = new_path;
-        req.url = new_path;
-        req.originalUrl = new_path;
-        proxy.web(req, res, {
-            target: process.env.API_URL
-        });
-    });
-}
-
 app.use(cookieParser());
-app.use(bodyParser.json());
 app.use(session({ secret: 'cern' }));
+
+
+// USE OF BODY PARSER will make proxying of API unusuable (for POST and PUT): see https://github.com/chimurai/http-proxy-middleware/issues/299
+// app.use(bodyParser.json());
+
 app.use(passport.initialize());
 app.use(passport.session()); // Used to persist login sessions
 
@@ -75,7 +63,9 @@ function isUserAuthenticated(req, res, next) {
     }
     if (req.user) {
         next();
-    } else {
+    }
+    else {
+        req.session.returnTo = req.originalUrl;
         res.redirect('/callback');
     }
 }
@@ -86,8 +76,8 @@ app.get(
         failureRedirect: '/error'
     }),
     function(req, res) {
-        console.log(req.user.displayName);
-        res.redirect('/');
+        res.redirect(req.session.returnTo || '/');
+        delete req.session.returnTo;
     }
 );
 
@@ -102,6 +92,22 @@ app.get('/error', (req, res) => {
     res.send('Error authenticating user');
 });
 
+// This proxy can also work with an API if provided the API_URL env. variable:
+// Authentication will work normally for a browser that accesses the API, since it already has the session cookie. For API use, it will need to provide with all the cookies after OAUTH
+// API requests (GET, POST, PUT, ...):
+if (process.env.API_URL) {
+    app.all('/api/*', isUserAuthenticated, (req, res) => {
+        // Remove the api from url:
+        const new_path = req.url.split('/api')[1];
+        req.path = new_path;
+        req.url = new_path;
+        req.originalUrl = new_path;
+        proxy.web(req, res, {
+            target: process.env.API_URL
+        });
+    });
+}
+
 // Client requests
 app.all('*', isUserAuthenticated, (req, res) => {
     proxy.on('proxyReq', (proxyReq, req, res, options) => {
@@ -113,10 +119,13 @@ app.all('*', isUserAuthenticated, (req, res) => {
             proxyReq.setHeader('id', user.id);
         }
     });
+    
     proxy.web(req, res, {
         target: process.env.CLIENT_URL
     });
 });
+
+
 
 // If something goes wrong on either API or client:
 proxy.on('error', function(err, req, res) {
