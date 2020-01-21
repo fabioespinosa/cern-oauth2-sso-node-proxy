@@ -102,6 +102,15 @@ if (process.env.API_URL) {
         req.path = new_path;
         req.url = new_path;
         req.originalUrl = new_path;
+        proxy.on('proxyReq', (proxyReq, req, res, options) => {
+            const { user } = req;
+            if (user) {
+                proxyReq.setHeader('displayname', user.displayname);
+                proxyReq.setHeader('egroups', user.egroups);
+                proxyReq.setHeader('email', user.email);
+                proxyReq.setHeader('id', user.id);
+            }
+        });
         proxy.web(req, res, {
             target: process.env.API_URL
         });
