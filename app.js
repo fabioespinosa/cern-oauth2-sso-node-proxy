@@ -18,6 +18,9 @@ const proxy = httpProxy.createProxyServer({
   proxyTimeout: long_timeout,
 });
 const server = http.createServer(app);
+server.on('upgrade', function (req, socket, head) {
+  proxy.ws(req, socket, head);
+});
 
 app.use(cookieParser());
 app.use(session({ secret: 'cern' }));
@@ -143,3 +146,4 @@ proxy.on('error', function (err, req, res) {
 });
 
 server.listen(port, () => console.log(`OAUTH Proxy started on port ${port}`));
+server.timeout = long_timeout;
