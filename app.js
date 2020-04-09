@@ -139,14 +139,13 @@ app.all('*', isUserAuthenticated, (req, res) => {
 // If something goes wrong on either API or client:
 proxy.on('error', function (err, req, res) {
   console.log(err);
-  if (res) {
-    res.status(500).send(`${err.message}`);
-    // res.writeHead(500, {
-    //   'Content-Type': 'text/plain',
-    // });
+  try {
+    res.writeHead(500, {
+      'Content-Type': 'text/plain',
+    });
 
-    // res.end(`${err.message} ----------- ${JSON.stringify(err)}`);
-  }
+    res.end(`${err.message} ----------- ${JSON.stringify(err)}`);
+  } catch (e) {}
 });
 
 server.listen(port, () => console.log(`OAUTH Proxy started on port ${port}`));
