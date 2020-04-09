@@ -18,9 +18,6 @@ const proxy = httpProxy.createProxyServer({
   proxyTimeout: long_timeout,
 });
 const server = http.createServer(app);
-server.on('upgrade', function (req, socket, head) {
-  proxy.ws(req, socket, head);
-});
 
 app.use(cookieParser());
 app.use(session({ secret: 'cern' }));
@@ -97,6 +94,9 @@ app.get('/error', (req, res) => {
 // Authentication will work normally for a browser that accesses the API, since it already has the session cookie. For API use, it will need to provide with all the cookies after OAUTH
 // API requests (GET, POST, PUT, ...):
 if (process.env.API_URL) {
+  app.all('/api/socket.io', isUserAuthenticated, (req, res) => {
+    proxy.ws(req, res, head, { target: process.env.API_URL });
+  });
   app.all('/api/*', isUserAuthenticated, (req, res) => {
     // Remove the api from url:
     const new_path = req.url.split('/api')[1];
