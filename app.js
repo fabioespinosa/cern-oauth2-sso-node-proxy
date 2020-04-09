@@ -17,6 +17,7 @@ const proxy = httpProxy.createProxyServer({
   timeout: long_timeout,
   proxyTimeout: long_timeout,
 });
+const server = http.createServer(app);
 
 app.use(cookieParser());
 app.use(session({ secret: 'cern' }));
@@ -133,6 +134,7 @@ app.all('*', isUserAuthenticated, (req, res) => {
 
 // If something goes wrong on either API or client:
 proxy.on('error', function (err, req, res) {
+  console.log(err);
   res.writeHead(500, {
     'Content-Type': 'text/plain',
   });
@@ -140,8 +142,4 @@ proxy.on('error', function (err, req, res) {
   res.end(`${err.message} ----------- ${JSON.stringify(err)}`);
 });
 
-const server = http.createServer(app);
-server.on('upgrade', function (req, socket, head) {
-  proxy.ws(req, socket, head);
-});
 server.listen(port, () => console.log(`OAUTH Proxy started on port ${port}`));
