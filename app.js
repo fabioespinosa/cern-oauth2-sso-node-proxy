@@ -141,4 +141,7 @@ proxy.on('error', function (err, req, res) {
 });
 
 const server = http.createServer(app);
+server.on('upgrade', function (req, socket, head) {
+  proxy.ws(req, socket, head);
+});
 server.listen(port, () => console.log(`OAUTH Proxy started on port ${port}`));
