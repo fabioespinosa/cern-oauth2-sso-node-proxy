@@ -140,11 +140,12 @@ app.all('*', isUserAuthenticated, (req, res) => {
 proxy.on('error', function (err, req, res) {
   console.log(err);
   if (res) {
-    res.writeHead(500, {
-      'Content-Type': 'text/plain',
-    });
+    res.status(500).send(`${err.message}`);
+    // res.writeHead(500, {
+    //   'Content-Type': 'text/plain',
+    // });
 
-    res.end(`${err.message} ----------- ${JSON.stringify(err)}`);
+    // res.end(`${err.message} ----------- ${JSON.stringify(err)}`);
   }
 });
 
