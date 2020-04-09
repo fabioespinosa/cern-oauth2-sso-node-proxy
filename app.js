@@ -94,7 +94,7 @@ app.get('/error', (req, res) => {
 // Authentication will work normally for a browser that accesses the API, since it already has the session cookie. For API use, it will need to provide with all the cookies after OAUTH
 // API requests (GET, POST, PUT, ...):
 if (process.env.API_URL) {
-  app.all('/api/socket.io', isUserAuthenticated, (req, res) => {
+  app.all('/api/socket.io/*', isUserAuthenticated, (req, res) => {
     proxy.ws(req, res, head, { target: process.env.API_URL });
   });
   app.all('/api/*', isUserAuthenticated, (req, res) => {
