@@ -126,6 +126,8 @@ if (process.env.API_URL) {
 // Client requests
 app.all('*', isUserAuthenticated, (req, res) => {
   proxy.on('proxyReq', (proxyReq, req, res, options) => {
+    req.setTimeout(500000);
+    res.setTimeout(500000)
     const { user } = req;
     if (user) {
       proxyReq.setHeader('displayname', user.displayname);
