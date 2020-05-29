@@ -18,6 +18,8 @@ const proxy = httpProxy.createProxyServer({
   proxyTimeout: long_timeout,
 });
 const server = http.createServer(app);
+server.setTimeout(500000);
+
 
 server.timeout = 100 * 60 * 1000;
 
