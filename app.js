@@ -19,6 +19,8 @@ const proxy = httpProxy.createProxyServer({
 });
 const server = http.createServer(app);
 
+server.timeout = 100 * 60 * 1000;
+
 server.on('upgrade', function (req, res, head) {
   proxy.ws(req, res, head, { target: process.env.API_URL });
 });
