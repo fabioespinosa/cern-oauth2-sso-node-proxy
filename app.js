@@ -117,6 +117,8 @@ if (process.env.API_URL) {
     });
     proxy.web(req, res, {
       target: process.env.API_URL,
+      timeout: long_timeout,
+      proxyTimeout: long_timeout,
     });
   });
 }
