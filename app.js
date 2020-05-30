@@ -110,6 +110,8 @@ if (process.env.API_URL) {
     req.originalUrl = new_path;
     proxy.on('proxyReq', (proxyReq, req, res, options) => {
       const { user } = req;
+      req.setTimeout(500000);
+      res.setTimeout(500000);
       if (user) {
         proxyReq.setHeader('displayname', user.displayname);
         proxyReq.setHeader('egroups', user.egroups);
@@ -129,7 +131,7 @@ if (process.env.API_URL) {
 app.all('*', isUserAuthenticated, (req, res) => {
   proxy.on('proxyReq', (proxyReq, req, res, options) => {
     req.setTimeout(500000);
-    res.setTimeout(500000)
+    res.setTimeout(500000);
     const { user } = req;
     if (user) {
       proxyReq.setHeader('displayname', user.displayname);
