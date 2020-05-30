@@ -18,6 +18,8 @@ const proxy = httpProxy.createProxyServer({
   proxyTimeout: long_timeout,
 });
 const server = http.createServer(app);
+server.setTimeout(500000);
+
 
 server.timeout = 100 * 60 * 1000;
 
@@ -126,6 +128,8 @@ if (process.env.API_URL) {
 // Client requests
 app.all('*', isUserAuthenticated, (req, res) => {
   proxy.on('proxyReq', (proxyReq, req, res, options) => {
+    req.setTimeout(500000);
+    res.setTimeout(500000)
     const { user } = req;
     if (user) {
       proxyReq.setHeader('displayname', user.displayname);
