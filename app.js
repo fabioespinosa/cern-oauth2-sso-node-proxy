@@ -108,6 +108,8 @@ if (process.env.API_URL) {
     req.path = new_path;
     req.url = new_path;
     req.originalUrl = new_path;
+    req.setTimeout(500000);
+    res.setTimeout(500000);
     proxy.on('proxyReq', (proxyReq, req, res, options) => {
       const { user } = req;
       req.setTimeout(500000);
