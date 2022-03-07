@@ -12,7 +12,7 @@ const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const port = 8080;
 
-const long_timeout = 100000000000;
+const long_timeout = 2147483640;
 const proxy = httpProxy.createProxyServer({
   timeout: long_timeout,
   proxyTimeout: long_timeout,
