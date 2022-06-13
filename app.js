@@ -131,6 +131,15 @@ if (process.env.API_URL) {
 
 // Client requests
 app.all('*', isUserAuthenticated, (req, res) => {
+  if( process.env.enviroment == "dev" ){
+    var timestamp = '[' + Date.now() + '] ';
+    console.log( timestamp );
+    console.log( user.displayname );
+    console.log( user.email );
+    console.log( user.egroups );
+    console.log( user.id );
+  };
+
   proxy.on('proxyReq', (proxyReq, req, res, options) => {
     req.setTimeout(500000);
     res.setTimeout(500000);
