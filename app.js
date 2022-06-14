@@ -10,6 +10,7 @@ const httpProxy = require('http-proxy');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
+const MemoryStore = require('memorystore')(session)
 const port = 8080;
 
 const long_timeout = 2147483640;
@@ -28,7 +29,11 @@ server.on('upgrade', function (req, res, head) {
 });
 
 app.use(cookieParser());
-app.use(session({ secret: 'cern' }));
+app.use(session({ secret: 'cern', resave: true, saveUninitialized: true, 
+                 store: new MemoryStore({ 
+                   checkPeriod: 86400000 // prune expired entries every 24h
+                                        }), 
+                }));
 
 // USE OF BODY PARSER will make proxying of API unusuable (for POST and PUT): see https://github.com/chimurai/http-proxy-middleware/issues/299
 // app.use(bodyParser.json());
@@ -129,26 +134,42 @@ if (process.env.API_URL) {
   });
 }
 
+// keep only relevant groups
+// https://twiki.cern.ch/twiki/bin/view/CMS/DQMRunRegistry2018#Authentication
+function clean_egroups( egroups ){
+  var egroups_answer = "";
+  all_egroups = egroups.split(';');
+  all_egroups.forEach( function (item, index) {
+    if( item.includes("dqm") ) egroups_answer += item + ";"
+    if( item.includes("DQM") ) egroups_answer += item + ";"
+  });
+  if( egroups_answer.length ) egroups_answer = egroups_answer.slice(0, -1)
+  return( egroups_answer )
+};
+
 // Client requests
 app.all('*', isUserAuthenticated, (req, res) => {
-  if( process.env.enviroment == "dev" ){
-    var timestamp = '[' + Date.now() + '] ';
-    console.log( timestamp );
-    console.log( user.displayname );
-    console.log( user.email );
-    console.log( user.egroups );
-    console.log( user.id );
-  };
-
   proxy.on('proxyReq', (proxyReq, req, res, options) => {
     req.setTimeout(500000);
     res.setTimeout(500000);
     const { user } = req;
     if (user) {
+      user.egroups = clean_egroups( user.egroups );
+      
       proxyReq.setHeader('displayname', user.displayname);
       proxyReq.setHeader('egroups', user.egroups);
       proxyReq.setHeader('email', user.email);
       proxyReq.setHeader('id', user.id);
+      
+      // uncomment following for some logs printout 
+      //if( process.env.enviroment == "dev"  ){
+      //  var timestamp = '[' + (new Date()).toLocaleString() + '] ';
+      //  console.log( timestamp );
+      //  console.log( user.displayname );
+      //  console.log( user.email );
+      //  console.log( user.egroups );
+      //  console.log( user.id );
+      //};
     }
   });
 
@@ -159,7 +180,9 @@ app.all('*', isUserAuthenticated, (req, res) => {
 
 // If something goes wrong on either API or client:
 proxy.on('error', function (err, req, res) {
-  console.log(err);
+  var timestamp = '[' + (new Date()).toLocaleString() + '] ';
+  console.log( timestamp );
+  console.log( err );
   try {
     res.writeHead(500, {
       'Content-Type': 'text/plain',
