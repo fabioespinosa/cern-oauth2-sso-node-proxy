@@ -54,7 +54,7 @@ app.use(session({
 // app.set('trust proxy', true);
 app.use(keycloak.middleware());
 
-app.listen(3000, function() {
+app.listen(8080, function() {
   console.log('App listening on port 3000');
 });
 
