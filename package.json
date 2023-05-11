@@ -4,7 +4,7 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "start": "node app.js"
+        "start": "node server.js"
     },
     "keywords": [],
     "author": "",
@@ -15,8 +15,9 @@
         "cookie-parser": "^1.4.3",
         "express": "^4.16.4",
         "express-session": "^1.15.6",
-        "memorystore" : "^1.6.7",
         "http-proxy": "^1.17.0",
+        "keycloak-connect": "^21.1.1",
+        "memorystore": "^1.6.7",
         "passport": "^0.4.0",
         "passport-oauth2": "^1.4.0"
     }
