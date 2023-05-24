@@ -2,9 +2,12 @@
 
 This will run on OpenShift as a proxy to your application (which can run on OpenStack).
 
-It takes care of authenticating users using OAuth 2.0 and in the headers you get the egroups the user belongs to, the id and the displayname.
+It takes care of authenticating users using keycloack/OIDC, getting their id, email, name and roles 
+and passing them onto the application running on CLIENT_URL.
 
-If you include an API_URL environment variable, it will also route /api/\* to the API_URL (with all HTTP possible methods, GET, POST, PUT, ...)
+If you include an API_URL environment variable, it will also route `/api/\*` to the API_URL (with all HTTP possible methods, `GET`, `POST`, `PUT`, ...)
+
+Note: Roles are different from egroups. See [here](https://auth.docs.cern.ch/applications/role-based-permissions/) for details.
 
 ## Instructions
 
@@ -18,12 +21,16 @@ If you include an API_URL environment variable, it will also route /api/\* to th
 
 ## Environment Variables
 
-| Environment Variable | Required | Explanation                                                                                                                                                                           |
-| -------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| CLIENT_URL           | true     | The URL you want to proxy                                                                                                                                                             |
-| clientID             | true     | The client id you get from [CERN AUTH](https://sso-management.web.cern.ch/oauth/registeroauthclient.aspx)                                                                             |
-| clientSecret         | true     | The client secret you get from [CERN AUTH](https://sso-management.web.cern.ch/oauth/registeroauthclient.aspx)                                                                         |
-| callbackURL          | true     | The name of your proxy with '/callback' in the end. The proxy will handle this route, no need to set it up yourself                                                                   |
-| authorizationURL     | false    | You might not need to change this, it defaults to https://oauth.web.cern.ch/OAuth/Authorize                                                                                           |
-| tokenURL             | false    | You might not need to change this, it defaults to https://oauth.web.cern.ch/OAuth/Token                                                                                               |
-| API_URL              | false    | If you're also running an API and you want to re-use this proxy, passing this environment variable will make all requests that go to the proxy/api/\* go to the API_URL you provided. |
+Environment variables that configure the proxy's execution. You can set those either by running `export <VAR>=<VALUE>` or by setting them in an `.env` file. See [`.env_sample`](.env_sample).
+
+| Environment Variable | Required | Description |
+| -------------------- | -------- | ------------------------- |
+| `CLIENT_URL`    | true     | The URL you want to proxy |
+| `CLIENT_ID`     | true     | The client id you get from [CERN AUTH](https://sso-management.web.cern.ch/oauth/registeroauthclient.aspx) |
+| `CLIENT_SECRET` | true     | The client secret you get from [CERN AUTH](https://sso-management.web.cern.ch/oauth/registeroauthclient.aspx) |  
+| `API_URL`       | false    | If you're also running an API and you want to re-use this proxy, passing this environment variable will redirect all requests that go to the proxy's `/api/\*` endpoint to the `API_URL` you provided. |
+| `SERVER_PORT`   | false    | The port that the proxy listens to, defaults to `8080` |
+| `SERVER_TIMEOUT`| false    | The server's timeout in ms, see [here](https://nodejs.org/api/http.html#serversettimeoutmsecs-callback) | 
+| `ENV`           | false    | The type of environment the proxy is running to. Set to `development` for extra console messages. | 
+| `DEBUG`         | false    | Accepts a comma-separated list of node modules to enable debugging information for. Example value: `http,express:*` to enable debugging messages for `http` and `express`. |
+| `NODE_ENV`      | false    | Sets the mode for the `express` server. Set to `development` when developing. ` |
