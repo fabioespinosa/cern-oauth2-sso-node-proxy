@@ -11,27 +11,27 @@ let keycloak_config = {
   'ssl-required': 'external',
   'resource': process.env.CLIENT_ID,
   //   'redirect_uri': process.env.CALLBACK_URL,
-  'credentials': {'secret': process.env.CLIENT_SECRET},
+  'credentials': { 'secret': process.env.CLIENT_SECRET },
   'issuer': 'https://auth.cern.ch/auth/realms/cern',
   'authorization_endpoint':
-      'https://auth.cern.ch/auth/realms/cern/protocol/openid-connect/auth',
+    'https://auth.cern.ch/auth/realms/cern/protocol/openid-connect/auth',
   'token_endpoint':
-      'https://auth.cern.ch/auth/realms/cern/protocol/openid-connect/token',
+    'https://auth.cern.ch/auth/realms/cern/protocol/openid-connect/token',
   'token_introspection_endpoint':
-      'https://auth.cern.ch/auth/realms/cern/protocol/openid-connect/token/introspect',
+    'https://auth.cern.ch/auth/realms/cern/protocol/openid-connect/token/introspect',
   'userinfo_endpoint':
-      'https://auth.cern.ch/auth/realms/cern/protocol/openid-connect/userinfo',
+    'https://auth.cern.ch/auth/realms/cern/protocol/openid-connect/userinfo',
   'end_session_endpoint':
-      'https://auth.cern.ch/auth/realms/cern/protocol/openid-connect/logout',
+    'https://auth.cern.ch/auth/realms/cern/protocol/openid-connect/logout',
   'jwks_uri':
-      'https://auth.cern.ch/auth/realms/cern/protocol/openid-connect/certs',
+    'https://auth.cern.ch/auth/realms/cern/protocol/openid-connect/certs',
 };
 
 
 
 const app = express();
-const memoryStore = new session.MemoryStore({checkPeriod: 86400000});
-const keycloak = new Keycloak({store: memoryStore}, keycloak_config);
+const memoryStore = new session.MemoryStore({ checkPeriod: 86400000 });
+const keycloak = new Keycloak({ store: memoryStore }, keycloak_config);
 
 // Configure session
 app.use(session({
@@ -45,17 +45,17 @@ app.use(session({
 
 // This automatically adds a "/logout" endpoint which
 // will take care of the logout automatically.
-app.use(keycloak.middleware({logout: '/logout'}));
+app.use(keycloak.middleware({ logout: '/logout' }));
 
 app.get(
-    '/', keycloak.protect(),
-    (req, res, next) => {res.json({'message': 'Welcome to /'})});
+  '/', keycloak.protect(),
+  (req, res, next) => { res.json({ 'message': 'Welcome to /' }) });
 
 app.use('*', keycloak.protect(), (req, res, next) => {
   const {
     kauth: {
       grant:
-          {access_token: {content: {cern_roles, name, cern_person_id, email}}}
+      { access_token: { content: { cern_roles, name, cern_person_id, email } } }
     }
   } = req;
   console.log('!!!!!!!!!!!!!!!!!!! Info');
@@ -69,6 +69,6 @@ app.use('*', keycloak.protect(), (req, res, next) => {
 });
 
 
-app.listen(port, function() {
+app.listen(port, function () {
   console.log(`App listening on port ${port}`);
 });
