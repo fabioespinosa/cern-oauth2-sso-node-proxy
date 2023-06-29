@@ -17,20 +17,20 @@ const keycloak_config = {
   'auth-server-url': 'https://auth.cern.ch/auth',
   'ssl-required': 'external',
   'resource': process.env.CLIENT_ID,
-  'credentials': {'secret': process.env.CLIENT_SECRET},
+  'credentials': { 'secret': process.env.CLIENT_SECRET },
   'issuer': 'https://auth.cern.ch/auth/realms/cern',
   'authorization_endpoint':
-      'https://auth.cern.ch/auth/realms/cern/protocol/openid-connect/auth',
+    'https://auth.cern.ch/auth/realms/cern/protocol/openid-connect/auth',
   'token_endpoint':
-      'https://auth.cern.ch/auth/realms/cern/protocol/openid-connect/token',
+    'https://auth.cern.ch/auth/realms/cern/protocol/openid-connect/token',
   'token_introspection_endpoint':
-      'https://auth.cern.ch/auth/realms/cern/protocol/openid-connect/token/introspect',
+    'https://auth.cern.ch/auth/realms/cern/protocol/openid-connect/token/introspect',
   'userinfo_endpoint':
-      'https://auth.cern.ch/auth/realms/cern/protocol/openid-connect/userinfo',
+    'https://auth.cern.ch/auth/realms/cern/protocol/openid-connect/userinfo',
   'end_session_endpoint':
-      'https://auth.cern.ch/auth/realms/cern/protocol/openid-connect/logout',
+    'https://auth.cern.ch/auth/realms/cern/protocol/openid-connect/logout',
   'jwks_uri':
-      'https://auth.cern.ch/auth/realms/cern/protocol/openid-connect/certs',
+    'https://auth.cern.ch/auth/realms/cern/protocol/openid-connect/certs',
 };
 const port = process.env.SERVER_PORT || 8080;
 
@@ -43,14 +43,14 @@ const proxy = httpProxy.createProxyServer({
 const server = http.createServer(app);
 server.setTimeout(process.env.SERVER_TIMEOUT || 500000);
 server.timeout = 100 * 60 * 1000;
-server.on('upgrade', function(req, res, head) {
-  proxy.ws(req, res, head, {target: process.env.API_URL});
+server.on('upgrade', function (req, res, head) {
+  proxy.ws(req, res, head, { target: process.env.API_URL });
 });
 
 const memoryStore = new MemoryStore({
   checkPeriod: 86400000  // prune expired entries every 24h
 });
-const keycloak = new Keycloak({store: memoryStore}, keycloak_config);
+const keycloak = new Keycloak({ store: memoryStore }, keycloak_config);
 
 
 app.use(session({
@@ -62,7 +62,7 @@ app.use(session({
 
 // This automatically adds a "/logout" endpoint which
 // will take care of the logout automatically.
-app.use(keycloak.middleware({logout: '/logout'}));
+app.use(keycloak.middleware({ logout: '/logout' }));
 
 // This proxy can also work with an API if provided the API_URL env. variable:
 // Authentication will work normally for a browser that accesses the API, since
@@ -83,7 +83,7 @@ if (process.env.API_URL) {
       const {
         kauth: {
           grant: {
-            access_token: {content: {cern_roles, name, cern_person_id, email}}
+            access_token: { content: { cern_roles, name, cern_person_id, email } }
           }
         }
       } = req;
@@ -115,7 +115,7 @@ app.all('*', keycloak.protect(), (req, res) => {
     const {
       kauth: {
         grant:
-            {access_token: {content: {cern_roles, name, cern_person_id, email}}}
+        { access_token: { content: { cern_roles, name, cern_person_id, email } } }
       }
     } = req;
     if (name) {
@@ -144,7 +144,7 @@ app.all('*', keycloak.protect(), (req, res) => {
 });
 
 // If something goes wrong on either API or client:
-proxy.on('error', function(err, req, res) {
+proxy.on('error', function (err, req, res) {
   var timestamp = '[' + (new Date()).toLocaleString() + '] ';
   console.log(timestamp);
   console.log(err);
@@ -158,17 +158,25 @@ proxy.on('error', function(err, req, res) {
   }
 });
 
-server.listen(port, () => console.log(`OAUTH Proxy started on port ${port}`));
+server.listen(port, () => {
+  console.log(`OAUTH Proxy started on port ${port}`)
+  app._router.stack.forEach(function (r) {
+    if (r.route && r.route.path) {
+      console.log(r.route.path)
+    }
+  })
+
+});
 server.timeout = long_timeout;
 
 // keep only relevant groups
 // https://twiki.cern.ch/twiki/bin/view/CMS/DQMRunRegistry2018#Authentication
 function clean_roles(roles) {
   var roles_answer = '';
-  roles.forEach(function(item, index) {
+  roles.forEach(function (item, index) {
     if (item.includes('dqm')) roles_answer += item + ';'
-      if (item.includes('DQM')) roles_answer += item + ';'
+    if (item.includes('DQM')) roles_answer += item + ';'
   });
   if (roles_answer.length) roles_answer = roles_answer.slice(0, -1)
-    return (roles_answer)
+  return (roles_answer)
 };
