@@ -59,6 +59,7 @@ app.use(session({
   saveUninitialized: true,
   store: memoryStore,
 }));
+app.set('trust proxy', true);
 
 // This automatically adds a "/logout" endpoint which
 // will take care of the logout automatically.
