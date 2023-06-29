@@ -14,9 +14,9 @@ Note: Roles are different from egroups. See [here](https://auth.docs.cern.ch/app
 1. Request a webpage in: [CERN Web Services](https://webservices.web.cern.ch/webservices/).
 2. Set up the visibility to Internet in 'Site Access & Permissions'.
 3. Go to 'manage your site', under OpenShift application tools, it will open on OpenShift.
-4. Click on Nodejs instance ![nodejs instance selection](https://github.com/fabioespinosa/cern-oauth2-sso-node-proxy/blob/master/readme_images/3.png 'Nodejs container')
-5. Input the address of this exact repo in Git Repository ![git repository](https://github.com/fabioespinosa/cern-oauth2-sso-node-proxy/blob/master/readme_images/2.png 'git repository link')
-6. After your project shows up in the Overview panel, click on it and under the Environment tab, add the info you got from [CERN OAuth Registration](https://sso-management.web.cern.ch/OAuth/RegisterOAuthClient.aspx) as environment variables, as shown in the image: ![Open Shift env variables](https://github.com/fabioespinosa/cern-oauth2-sso-node-proxy/blob/master/readme_images/4.png 'Open Shift env variables')
+4. Click on Nodejs instance ![nodejs instance selection](doc/3.png 'Nodejs container')
+5. Input the address of this exact repo in Git Repository ![git repository](doc/2.png 'git repository link')
+6. After your project shows up in the Overview panel, click on it and under the Environment tab, add the info you got from [CERN OAuth Registration](https://sso-management.web.cern.ch/OAuth/RegisterOAuthClient.aspx) as environment variables, as shown in the image: ![Open Shift env variables](doc/4.png 'Open Shift env variables')
 7. Wait until the container runs again, and it should be working.
 
 ## Environment Variables

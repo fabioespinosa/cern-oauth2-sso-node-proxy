@@ -59,6 +59,8 @@ app.use(session({
   saveUninitialized: true,
   store: memoryStore,
 }));
+
+// See here for details: https://lists.jboss.org/pipermail/keycloak-dev/2019-August/012406.html
 app.set('trust proxy', true);
 
 // This automatically adds a "/logout" endpoint which
