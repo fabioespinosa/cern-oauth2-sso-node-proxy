@@ -34,3 +34,5 @@ Environment variables that configure the proxy's execution. You can set those ei
 | `ENV`           | false    | The type of environment the proxy is running to. Set to `development` for extra console messages. | 
 | `DEBUG`         | false    | Accepts a comma-separated list of node modules to enable debugging information for. Example value: `http,express:*` to enable debugging messages for `http` and `express`. |
 | `NODE_ENV`      | false    | Sets the mode for the `express` server. Set to `development` when developing. ` |
+
+More env vars (such as `NPM_RUN` which lets you specify the `npm run` command to run), specific to the NodeJs S2I image can be found [here](https://github.com/sclorg/s2i-nodejs-container/tree/master/14#readme).
