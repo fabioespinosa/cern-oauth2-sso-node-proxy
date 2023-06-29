@@ -15,7 +15,7 @@ const Keycloak = require('keycloak-connect');
 const keycloak_config = {
   'realm': 'cern',
   'auth-server-url': 'https://auth.cern.ch/auth',
-  'ssl-required': process.env.ENV === "development" ? 'external' : "all",
+  'ssl-required': "all",
   'resource': process.env.CLIENT_ID,
   'credentials': { 'secret': process.env.CLIENT_SECRET },
   'issuer': 'https://auth.cern.ch/auth/realms/cern',
