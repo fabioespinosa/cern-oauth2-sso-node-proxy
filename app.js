@@ -63,7 +63,6 @@ app.use(session({
 // This automatically adds a "/logout" endpoint which
 // will take care of the logout automatically.
 app.use(keycloak.middleware({ logout: '/logout' }));
-app.set('trust proxy', 'loopback');
 // This proxy can also work with an API if provided the API_URL env. variable:
 // Authentication will work normally for a browser that accesses the API, since
 // it already has the session cookie. For API use, it will need to provide with
