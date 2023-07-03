@@ -90,12 +90,14 @@ if (process.env.API_URL) {
         }
       } = req;
       if (name) {
-        const clean_cern_roles = clean_roles(cern_roles);
+        // Not needed any more, we have roles only passed through
+        // the new SSO.
+        // const clean_cern_roles = clean_roles(cern_roles);
 
         proxyReq.setHeader('displayname', name);
         // TODO: maybe change the header name to "roles" at some point.
         // The client app must also be changed.
-        proxyReq.setHeader('egroups', clean_cern_roles);
+        proxyReq.setHeader('egroups', cern_roles);
         proxyReq.setHeader('email', email);
         proxyReq.setHeader('id', cern_person_id);
       }
@@ -121,10 +123,12 @@ app.all('*', keycloak.protect(), (req, res) => {
       }
     } = req;
     if (name) {
-      const clean_cern_roles = clean_roles(cern_roles);
+      // Not needed any more, we have roles only passed through
+      // the new SSO.
+      // const clean_cern_roles = clean_roles(cern_roles);
 
       proxyReq.setHeader('displayname', name);
-      proxyReq.setHeader('egroups', clean_cern_roles);
+      proxyReq.setHeader('egroups', cern_roles);
       proxyReq.setHeader('email', email);
       proxyReq.setHeader('id', cern_person_id);
 
@@ -135,7 +139,7 @@ app.all('*', keycloak.protect(), (req, res) => {
         console.log(`Timestamp: ${timestamp}`);
         console.log(`Display name: ${name}`);
         console.log(`email: ${email}`);
-        console.log(`egroups: ${clean_cern_roles}`);
+        console.log(`egroups: ${cern_roles}`);
         console.log(`User ID: ${cern_person_id}`);
       };
     }
