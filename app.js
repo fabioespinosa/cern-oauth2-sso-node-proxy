@@ -47,9 +47,10 @@ server.on('upgrade', function (req, res, head) {
   proxy.ws(req, res, head, { target: process.env.API_URL });
 });
 
-const memoryStore = new MemoryStore({
-  checkPeriod: 86400000  // prune expired entries every 24h
-});
+// Not setting checkPeriod at all in MemoryStore, as it may lead to storing
+// expired tokens. 
+// CERN SSO limits: https://auth.docs.cern.ch/user-documentation/time-limits/
+const memoryStore = new MemoryStore();
 const keycloak = new Keycloak({ store: memoryStore }, keycloak_config);
 
 
