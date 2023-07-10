@@ -86,29 +86,29 @@ if (process.env.API_URL) {
       const {
         kauth: {
           grant: {
-            access_token: { content: { cern_roles, name, cern_person_id, email } }
+            access_token: { content: { cern_roles, name, cern_person_id, email, sub, sid } }
           }
         }
       } = req;
       // When using a token to access the app programmatically, there's no name
-      // so we're checking for roles too. 
-      if (name || cern_roles) {
+      // so we're checking at the subscriber name too. 
+      if (name || sub) {
         let formatted_cern_roles = formatRoles(cern_roles);
-        proxyReq.setHeader('displayname', name);
+        proxyReq.setHeader('displayname', name || sub);
         // TODO: maybe change the header name to "roles" at some point.
         // The client app receiving the requests must also be changed.
         proxyReq.setHeader('egroups', formatted_cern_roles);
-        proxyReq.setHeader('email', email);
-        proxyReq.setHeader('id', cern_person_id);
+        proxyReq.setHeader('email', email || 'api@client');
+        proxyReq.setHeader('id', cern_person_id || sid);
         // uncomment the following for some logs printout while
         // developing
         if (process.env.ENV == 'development') {
           let timestamp = '[' + (new Date()).toLocaleString() + '] ';
           console.log(`Timestamp: ${timestamp}`);
-          console.log(`Display name: ${name}`);
+          console.log(`Display name: ${name || sub}`);
           console.log(`email: ${email}`);
           console.log(`egroups: ${formatted_cern_roles}`);
-          console.log(`User ID: ${cern_person_id}`);
+          console.log(`User ID: ${cern_person_id || sid}`);
         };
       }
     });
@@ -129,26 +129,26 @@ app.all('*', keycloak.protect(), (req, res) => {
     const {
       kauth: {
         grant:
-        { access_token: { content: { cern_roles, name, cern_person_id, email } } }
+        { access_token: { content: { cern_roles, name, cern_person_id, email, sub, sid } } }
       }
     } = req;
-    if (name) {
+    if (name || sub) {
       let formatted_cern_roles = formatRoles(cern_roles)
 
-      proxyReq.setHeader('displayname', name);
+      proxyReq.setHeader('displayname', name || sub);
       proxyReq.setHeader('egroups', formatted_cern_roles);
-      proxyReq.setHeader('email', email);
-      proxyReq.setHeader('id', cern_person_id);
+      proxyReq.setHeader('email', email || 'api@client');
+      proxyReq.setHeader('id', cern_person_id || sid);
 
       // uncomment the following for some logs printout while
       // developing
       if (process.env.ENV == 'development') {
         let timestamp = '[' + (new Date()).toLocaleString() + '] ';
         console.log(`Timestamp: ${timestamp}`);
-        console.log(`Display name: ${name}`);
+        console.log(`Display name: ${name || sub}`);
         console.log(`email: ${email}`);
         console.log(`egroups: ${formatted_cern_roles}`);
-        console.log(`User ID: ${cern_person_id}`);
+        console.log(`User ID: ${cern_person_id || sid}`);
       };
     }
   });
