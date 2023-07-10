@@ -90,17 +90,26 @@ if (process.env.API_URL) {
           }
         }
       } = req;
-      if (name) {
-        // Not needed any more, we have roles only passed through
-        // the new SSO.
-        // const clean_cern_roles = clean_roles(cern_roles);
-
+      // When using a token to access the app programmatically, there's no name
+      // so we're checking for roles too. 
+      if (name || cern_roles) {
+        let formatted_cern_roles = formatRoles(cern_roles);
         proxyReq.setHeader('displayname', name);
         // TODO: maybe change the header name to "roles" at some point.
-        // The client app must also be changed.
-        proxyReq.setHeader('egroups', cern_roles);
+        // The client app receiving the requests must also be changed.
+        proxyReq.setHeader('egroups', formatted_cern_roles);
         proxyReq.setHeader('email', email);
         proxyReq.setHeader('id', cern_person_id);
+        // uncomment the following for some logs printout while
+        // developing
+        if (process.env.ENV == 'development') {
+          let timestamp = '[' + (new Date()).toLocaleString() + '] ';
+          console.log(`Timestamp: ${timestamp}`);
+          console.log(`Display name: ${name}`);
+          console.log(`email: ${email}`);
+          console.log(`egroups: ${formatted_cern_roles}`);
+          console.log(`User ID: ${cern_person_id}`);
+        };
       }
     });
     proxy.web(req, res, {
@@ -124,12 +133,10 @@ app.all('*', keycloak.protect(), (req, res) => {
       }
     } = req;
     if (name) {
-      // Not needed any more, we have roles only passed through
-      // the new SSO.
-      // const clean_cern_roles = clean_roles(cern_roles);
+      let formatted_cern_roles = formatRoles(cern_roles)
 
       proxyReq.setHeader('displayname', name);
-      proxyReq.setHeader('egroups', cern_roles);
+      proxyReq.setHeader('egroups', formatted_cern_roles);
       proxyReq.setHeader('email', email);
       proxyReq.setHeader('id', cern_person_id);
 
@@ -140,7 +147,7 @@ app.all('*', keycloak.protect(), (req, res) => {
         console.log(`Timestamp: ${timestamp}`);
         console.log(`Display name: ${name}`);
         console.log(`email: ${email}`);
-        console.log(`egroups: ${cern_roles}`);
+        console.log(`egroups: ${formatted_cern_roles}`);
         console.log(`User ID: ${cern_person_id}`);
       };
     }
@@ -167,23 +174,13 @@ proxy.on('error', function (err, req, res) {
 
 server.listen(port, () => {
   console.log(`OAUTH Proxy started on port ${port}`)
-  app._router.stack.forEach(function (r) {
-    if (r.route && r.route.path) {
-      console.log(r.route.path)
-    }
-  })
-
 });
 server.timeout = long_timeout;
 
-// keep only relevant groups
-// https://twiki.cern.ch/twiki/bin/view/CMS/DQMRunRegistry2018#Authentication
-function clean_roles(roles) {
-  var roles_answer = '';
-  roles.forEach(function (item, index) {
-    if (item.includes('dqm')) roles_answer += item + ';'
-    if (item.includes('DQM')) roles_answer += item + ';'
+function formatRoles(roles_array) {
+  let formatted_roles = '';
+  roles_array.forEach(role => {
+    formatted_roles += role + ';';
   });
-  if (roles_answer.length) roles_answer = roles_answer.slice(0, -1)
-  return (roles_answer)
-};
+  return formatted_roles;
+}
