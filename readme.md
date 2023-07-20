@@ -197,3 +197,9 @@ Back to the PaaS project.
 5. Under `Actions` on the top right, click `Start build`:
 
     ![](doc/env_vars_05.png)
+
+### Increasing performance of the proxy
+
+In case the proxy seems to be very slow to serve your application, consider
+increasing the number of Pods. To do so, go to `Developer`, click `Topology`,
+right-click your proxy and click `Edit Pod count`. Increasing it to 3 should be sufficient.
